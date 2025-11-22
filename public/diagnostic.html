@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebugMate - Diagnostic</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+
+        .success {
+            background: #10b981;
+        }
+
+        .error {
+            background: #ef4444;
+        }
+
+        .warning {
+            background: #f59e0b;
+        }
+
+        pre {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 DebugMate Diagnostic</h1>
+
+    <div id="status"></div>
+
+    <h2>Quick Actions:</h2>
+    <button onclick="window.location.href='http://localhost:5173'">Go to Main App</button>
+    <button onclick="checkConsole()">Check Console</button>
+    <button onclick="location.reload()">Refresh</button>
+
+    <h2>Diagnostic Results:</h2>
+    <div id="results"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+
+        function addStatus(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusDiv.appendChild(div);
+        }
+
+        function addResult(title, content) {
+            const div = document.createElement('div');
+            div.innerHTML = `<h3>${title}</h3><pre>${content}</pre>`;
+            resultsDiv.appendChild(div);
+        }
+
+        function checkConsole() {
+            addStatus('Check your browser console (F12) for errors', 'warning');
+        }
+
+        // Run diagnostics
+        async function runDiagnostics() {
+            addStatus('Running diagnostics...', 'warning');
+
+            // Check if dev server is running
+            try {
+                const response = await fetch('http://localhost:5173');
+                if (response.ok) {
+                    addStatus('✅ Dev server is running on port 5173', 'success');
+                } else {
+                    addStatus('⚠️ Dev server responded but with error status', 'warning');
+                }
+            } catch (e) {
+                addStatus('❌ Cannot connect to dev server on port 5173', 'error');
+                addResult('Error Details', e.message);
+            }
+
+            // Check localStorage
+            try {
+                const errorStorage = localStorage.getItem('error-storage');
+                if (errorStorage) {
+                    addStatus('✅ Error storage found in localStorage', 'success');
+                    addResult('Error Storage', JSON.stringify(JSON.parse(errorStorage), null, 2));
+                } else {
+                    addStatus('ℹ️ No error storage in localStorage (this is normal for first run)', 'warning');
+                }
+            } catch (e) {
+                addStatus('❌ Error reading localStorage', 'error');
+                addResult('LocalStorage Error', e.message);
+            }
+
+            // Check environment
+            addResult('Environment', `
+User Agent: ${navigator.userAgent}
+Screen: ${screen.width}x${screen.height}
+Viewport: ${window.innerWidth}x${window.innerHeight}
+            `);
+
+            addStatus('✅ Diagnostics complete!', 'success');
+        }
+
+        // Run on load
+        runDiagnostics();
+    </script>
+</body>
+
+</html>
