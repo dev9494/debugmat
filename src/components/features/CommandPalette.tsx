@@ -129,16 +129,16 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-in fade-in"
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 animate-in fade-in duration-200"
                 onClick={onClose}
             />
 
             {/* Command Palette */}
             <div className="fixed top-[20%] left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-none">
-                <div className="bg-[#141414] border border-white/10 rounded-2xl shadow-2xl pointer-events-auto animate-in zoom-in-95 slide-in-from-top-4">
+                <div className="glass-card rounded-2xl shadow-2xl pointer-events-auto animate-in zoom-in-95 slide-in-from-top-4 duration-200 overflow-hidden border-white/10 bg-[#0f172a]/90">
                     {/* Search Input */}
-                    <div className="flex items-center gap-3 p-4 border-b border-white/10">
-                        <Command className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <div className="flex items-center gap-3 p-4 border-b border-white/10 bg-white/5">
+                        <Command className="w-5 h-5 text-slate-400 shrink-0" />
                         <input
                             ref={inputRef}
                             type="text"
@@ -148,9 +148,9 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
                                 setQuery(e.target.value);
                                 setSelectedIndex(0);
                             }}
-                            className="flex-1 bg-transparent border-0 text-lg text-white placeholder:text-muted-foreground focus:outline-none"
+                            className="flex-1 bg-transparent border-0 text-lg text-white placeholder:text-slate-500 focus:outline-none"
                         />
-                        <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-xs font-mono text-muted-foreground">
+                        <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-xs font-mono text-slate-400">
                             ESC
                         </kbd>
                     </div>
@@ -161,7 +161,7 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
                             <div className="p-2">
                                 {Object.entries(groupedCommands).map(([category, items]) => (
                                     <div key={category} className="mb-4 last:mb-0">
-                                        <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                        <div className="px-3 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                             {category}
                                         </div>
                                         <div className="space-y-1">
@@ -175,30 +175,36 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
                                                         className={cn(
                                                             "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all",
                                                             globalIndex === selectedIndex
-                                                                ? "bg-blue-500/20 border border-blue-500/30"
+                                                                ? "bg-blue-500/20 border border-blue-500/30 shadow-lg shadow-blue-500/5"
                                                                 : "hover:bg-white/5 border border-transparent"
                                                         )}
                                                     >
                                                         <div className={cn(
-                                                            "p-2 rounded-md",
+                                                            "p-2 rounded-md transition-colors",
                                                             globalIndex === selectedIndex
                                                                 ? "bg-blue-500/20 text-blue-400"
-                                                                : "bg-white/5 text-muted-foreground"
+                                                                : "bg-white/5 text-slate-400"
                                                         )}>
                                                             {cmd.icon}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <div className="text-base font-medium text-white">
+                                                            <div className={cn(
+                                                                "text-base font-medium transition-colors",
+                                                                globalIndex === selectedIndex ? "text-white" : "text-slate-200"
+                                                            )}>
                                                                 {cmd.title}
                                                             </div>
                                                             {cmd.description && (
-                                                                <div className="text-sm text-muted-foreground truncate">
+                                                                <div className={cn(
+                                                                    "text-sm truncate transition-colors",
+                                                                    globalIndex === selectedIndex ? "text-blue-200" : "text-slate-500"
+                                                                )}>
                                                                     {cmd.description}
                                                                 </div>
                                                             )}
                                                         </div>
                                                         {globalIndex === selectedIndex && (
-                                                            <kbd className="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-xs font-mono text-blue-400">
+                                                            <kbd className="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-xs font-mono text-blue-400 shadow-sm">
                                                                 ↵
                                                             </kbd>
                                                         )}
@@ -212,17 +218,17 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
                         ) : (
                             <div className="p-12 text-center">
                                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-white/5 flex items-center justify-center">
-                                    <Search className="w-5 h-5 text-muted-foreground/50" />
+                                    <Search className="w-5 h-5 text-slate-500" />
                                 </div>
-                                <p className="text-base text-muted-foreground">No commands found</p>
-                                <p className="text-sm text-muted-foreground/50 mt-1">Try a different search</p>
+                                <p className="text-base text-slate-400">No commands found</p>
+                                <p className="text-sm text-slate-600 mt-1">Try a different search</p>
                             </div>
                         )}
                     </div>
 
                     {/* Footer */}
                     <div className="flex items-center justify-between px-4 py-3 border-t border-white/10 bg-white/[0.02]">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
                             <span className="flex items-center gap-1">
                                 <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">↑</kbd>
                                 <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">↓</kbd>
@@ -232,6 +238,10 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
                                 <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 font-mono">↵</kbd>
                                 to select
                             </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <Sparkles className="w-3 h-3 text-blue-400" />
+                            <span>Powered by AI</span>
                         </div>
                     </div>
                 </div>

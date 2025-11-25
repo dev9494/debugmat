@@ -58,7 +58,7 @@ export const AnalyticsCards = () => {
                 <div
                     key={index}
                     className={cn(
-                        "group relative overflow-hidden rounded-xl border border-white/5 bg-[#141414] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl",
+                        "glass-card group relative overflow-hidden rounded-xl p-6",
                         stat.borderColor
                     )}
                 >
@@ -70,11 +70,11 @@ export const AnalyticsCards = () => {
 
                     <div className="relative z-10 flex flex-col h-full justify-between min-h-[100px]">
                         <div className="flex items-start justify-between mb-4">
-                            <div className={cn("p-2.5 rounded-lg bg-white/5 border border-white/5", stat.iconColor)}>
+                            <div className={cn("p-2.5 rounded-lg bg-white/5 border border-white/5 backdrop-blur-sm", stat.iconColor)}>
                                 <stat.icon className="w-5 h-5" />
                             </div>
                             <div className={cn(
-                                "flex items-center gap-1 text-sm font-medium px-2.5 py-1 rounded-full bg-white/5 border border-white/5",
+                                "flex items-center gap-1 text-sm font-medium px-2.5 py-1 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm",
                                 stat.trend === 'up' ? "text-green-400" : "text-muted-foreground"
                             )}>
                                 {stat.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -83,22 +83,24 @@ export const AnalyticsCards = () => {
                         </div>
 
                         <div>
-                            <h3 className="text-5xl font-bold text-white tracking-tight mb-2">{stat.value}</h3>
+                            <h3 className="text-5xl font-bold text-white tracking-tight mb-2 drop-shadow-lg">{stat.value}</h3>
                             <p className="text-base text-muted-foreground font-medium">{stat.label}</p>
                         </div>
 
                         {/* Mini Sparkline */}
-                        <div className="absolute bottom-0 left-0 right-0 h-12 opacity-20 group-hover:opacity-40 transition-opacity">
+                        <div className="absolute bottom-0 left-0 right-0 h-16 opacity-20 group-hover:opacity-40 transition-opacity">
                             <svg className="w-full h-full" preserveAspectRatio="none">
                                 <path
                                     d={stat.sparkline}
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="2"
+                                    strokeWidth="3"
                                     className={stat.iconColor}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 />
                                 <path
-                                    d={`${stat.sparkline} L 100 50 L 0 50 Z`}
+                                    d={`${stat.sparkline} L 100 100 L 0 100 Z`}
                                     fill="currentColor"
                                     className={stat.iconColor}
                                     opacity="0.2"

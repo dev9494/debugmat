@@ -4,41 +4,39 @@
 
 @layer base {
   :root {
-    /* Premium Dark Mode Palette - Improved Contrast */
-    --background: 0 0% 3.9%;
-    /* #0a0a0a */
-    --foreground: 0 0% 98%;
-    /* #fafafa - Increased from 98% for better contrast */
+    /* Cyber-Glass Theme Palette */
+    --background: 222 47% 11%;
+    /* #0f172a - Slate 900 base */
+    --foreground: 210 40% 98%;
+    /* #f8fafc */
 
-    --card: 0 0% 7.8%;
-    /* #141414 */
-    --card-foreground: 0 0% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 7.8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 217 91% 60%;
     /* #3b82f6 Blue */
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 0 0% 12%;
-    /* #1f1f1f */
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 25% 27%;
+    /* Slate 700 */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 70%;
-    /* #b3b3b3 - Increased from 63.9% for better contrast */
+    --muted: 217 33% 17%;
+    /* Slate 800 */
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 20%;
-    /* #333333 - Increased from 16% for better visibility */
-    --input: 0 0% 20%;
-    --ring: 217 91% 60%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 224 76% 48%;
 
     --radius: 0.75rem;
   }
@@ -48,59 +46,51 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    @apply bg-[#030712] text-foreground antialiased selection:bg-blue-500/30 selection:text-blue-200;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Typography Scale */
   h1 {
-    font-size: 2rem;
-    /* 32px */
-    line-height: 1.2;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    @apply text-4xl font-bold tracking-tight;
   }
 
   h2 {
-    font-size: 1.5rem;
-    /* 24px */
-    line-height: 1.3;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    @apply text-2xl font-bold tracking-tight;
   }
 
   h3 {
-    font-size: 1.25rem;
-    /* 20px */
-    line-height: 1.4;
-    font-weight: 600;
-  }
-
-  p {
-    line-height: 1.6;
+    @apply text-xl font-semibold tracking-tight;
   }
 }
 
 @layer utilities {
+
+  /* Enhanced Glassmorphism */
   .glass {
-    @apply bg-black/40 backdrop-blur-md border-white/10;
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg;
   }
 
   .glass-card {
-    @apply bg-[#141414]/80 backdrop-blur-sm border border-white/5 shadow-xl;
+    @apply bg-[#0f172a]/60 backdrop-blur-md border border-white/10 shadow-xl transition-all duration-300 hover:bg-[#0f172a]/80 hover:border-white/20 hover:shadow-2xl hover:shadow-blue-500/10;
   }
 
+  .glass-panel {
+    @apply bg-[#0f172a]/40 backdrop-blur-lg border-r border-white/5;
+  }
+
+  /* Text Gradients */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-blue-200;
   }
 
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500;
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500;
   }
 
   /* Custom Scrollbar */
@@ -118,51 +108,51 @@
   }
 
   /* Animations */
-  .animate-in {
-    animation: animateIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 
-  .animate-up {
-    animation: animateUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  .animate-pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  @keyframes animateIn {
-    from {
-      opacity: 0;
-      transform: scale(0.98);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  .animate-slide-left {
+    animation: slide-left 60s linear infinite;
   }
 
-  @keyframes animateUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
+  @keyframes float {
 
-    to {
-      opacity: 1;
+    0%,
+    100% {
       transform: translateY(0);
     }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
-  .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite linear;
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+    }
   }
 
-  @keyframes shimmer {
+  @keyframes slide-left {
     0% {
-      background-position: -200% 0;
+      transform: translateX(100%);
     }
 
     100% {
-      background-position: 200% 0;
+      transform: translateX(-100%);
     }
   }
 }
