@@ -7,6 +7,7 @@ import { useUserStore } from '../../stores/userStore';
 import { useSubscriptionStore } from '../../stores/subscriptionStore';
 import { incrementUsageCount } from '../../lib/firestore';
 import { useAuth } from '../../contexts/AuthContext';
+import { trackErrorAnalysis } from '../../lib/googleAnalytics';
 
 export const ProfessionalCodeEditor = () => {
     const { currentError, setCurrentError, isAnalyzing, setIsAnalyzing, setCurrentAnalysis, addToHistory } = useErrorStore();
@@ -61,6 +62,9 @@ export const ProfessionalCodeEditor = () => {
             if (currentUser) {
                 await incrementUsageCount(currentUser.uid);
             }
+
+            // Track in Google Analytics
+            trackErrorAnalysis(analysis.errorType, analysis.severity);
 
             addToHistory({
                 id: crypto.randomUUID(),
