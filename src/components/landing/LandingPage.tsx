@@ -1,81 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
-    Zap, Shield, Code2, Terminal, Cpu, Globe,
-    CheckCircle, XCircle, ArrowRight, Play,
-    MessageSquare, Layers, BarChart3, GitPullRequest,
-    Trophy, ChevronRight, Star, Check, Sparkles,
-    Bug, Search, Lock, LogIn, Menu, X
+    Zap, Shield, Code2, Terminal, Layers, BarChart3,
+    MessageSquare, Database, LogIn
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { DemoVideoModal } from './DemoVideoModal';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LandingPageProps {
     onGetStarted: () => void;
 }
 
-const FloatingIcon = ({ icon: Icon, className, delay }: { icon: any, className?: string, delay: number }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 0.4, y: -20 }}
-        transition={{
-            duration: 3,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: delay,
-            ease: "easeInOut"
-        }}
-        className={cn("absolute p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm", className)}
-    >
-        <Icon className="w-6 h-6 text-white/50" />
-    </motion.div>
-);
-
-const SideCodeSnippet = ({ code, className, delay }: { code: string, className?: string, delay: number }) => (
-    <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 0.6, x: 0 }}
-        transition={{ delay, duration: 0.8 }}
-        className={cn("hidden 2xl:block absolute font-mono text-xs text-slate-500 bg-[#0B1121]/80 p-4 rounded-lg border border-white/5 backdrop-blur-sm w-64", className)}
-    >
-        <pre>{code}</pre>
-    </motion.div>
-);
-
 export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
-    const { scrollYProgress } = useScroll();
-    const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
-    const [showDemo, setShowDemo] = useState(false);
-    const { currentUser, signInWithGoogle } = useAuth();
+    const { signInWithGoogle } = useAuth();
     const [isSigningIn, setIsSigningIn] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleSignIn = async () => {
         setIsSigningIn(true);
         try {
             await signInWithGoogle();
-            // After successful sign in, navigate to dashboard
             onGetStarted();
         } catch (error: any) {
             console.error("Sign in failed:", error);
-
-            // Show user-friendly error messages
-            if (error?.code === 'auth/configuration-not-found') {
-                alert(
-                    '⚠️ Google Sign-In Not Configured\n\n' +
-                    'Please enable Google authentication in Firebase Console:\n\n' +
-                    '1. Go to Firebase Console > Authentication\n' +
-                    '2. Click "Sign-in method" tab\n' +
-                    '3. Enable "Google" provider\n' +
-                    '4. Save and try again\n\n' +
-                    'See FIREBASE_AUTH_FIX.md for detailed instructions.'
-                );
-            } else if (error?.code === 'auth/popup-closed-by-user') {
-                // User closed the popup, no need to show error
-                console.log('Sign-in popup closed by user');
-            } else {
+            if (error?.code !== 'auth/popup-closed-by-user') {
                 alert('Sign-in failed: ' + (error?.message || 'Unknown error'));
             }
         } finally {
@@ -83,607 +29,265 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         }
     };
 
-    // If user is already signed in, show their profile
-    useEffect(() => {
-        if (currentUser) {
-            onGetStarted();
+    const features = [
+        {
+            icon: Zap,
+            title: "AI-Powered Fixes",
+            description: "Empower AI-powered and proactive skills.",
+            gradient: "from-orange-500 to-red-500"
+        },
+        {
+            icon: BarChart3,
+            title: "Real-time Analysis",
+            description: "Provide analysis model in developer tools.",
+            gradient: "from-blue-500 to-cyan-500"
+        },
+        {
+            icon: Shield,
+            title: "Secure Code Review",
+            description: "Review insures you using your code review.",
+            gradient: "from-purple-500 to-pink-500"
+        },
+        {
+            icon: Code2,
+            title: "Seamless Integration",
+            description: "Provide seamless through integration parameters.",
+            gradient: "from-green-500 to-emerald-500"
+        },
+        {
+            icon: Layers,
+            title: "Solutions Options",
+            description: "Keep code functions with intents and modules.",
+            gradient: "from-yellow-500 to-orange-500"
+        },
+        {
+            icon: Terminal,
+            title: "Quick Execution",
+            description: "Manage your code executing and concessions.",
+            gradient: "from-indigo-500 to-blue-500"
+        },
+        {
+            icon: Database,
+            title: "Real-time Analysis",
+            description: "Professional one for entire priorities and motions.",
+            gradient: "from-pink-500 to-rose-500"
+        },
+        {
+            icon: MessageSquare,
+            title: "Software Feedback",
+            description: "Provide customer feedbacks to solutions engagement.",
+            gradient: "from-cyan-500 to-teal-500"
         }
-    }, [currentUser, onGetStarted]);
+    ];
 
     return (
-        <div className="min-h-screen bg-[#0B1121] text-white overflow-x-hidden font-sans selection:bg-blue-500/30">
-            <DemoVideoModal isOpen={showDemo} onClose={() => setShowDemo(false)} />
-
-            {/* Dynamic Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px] animate-pulse delay-1000" />
-                <div className="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-cyan-500/20 rounded-full blur-[120px] animate-pulse delay-2000" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-                {/* Grid Pattern */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-            </div>
-
-            {/* Side Decorations - Filling the Empty Space */}
-            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden hidden xl:block">
-                {/* Left Side Icons */}
-                <FloatingIcon icon={Bug} className="top-[20%] left-[2%]" delay={0} />
-                <FloatingIcon icon={Code2} className="top-[40%] left-[4%]" delay={1} />
-                <FloatingIcon icon={Terminal} className="top-[60%] left-[2%]" delay={2} />
-
-                {/* Right Side Icons */}
-                <FloatingIcon icon={Zap} className="top-[25%] right-[2%]" delay={0.5} />
-                <FloatingIcon icon={Shield} className="top-[45%] right-[4%]" delay={1.5} />
-                <FloatingIcon icon={GitPullRequest} className="top-[65%] right-[2%]" delay={2.5} />
-
-                {/* Code Snippets for Extra Wide Screens */}
-                <SideCodeSnippet
-                    code={`function fixError(err) {\n  if (!err) return;\n  analyze(err);\n}`}
-                    className="top-[30%] left-[1%]"
-                    delay={0.5}
-                />
-                <SideCodeSnippet
-                    code={`// Auto-detected\nconst severity = 'HIGH';\nnotify(channels.SLACK);`}
-                    className="bottom-[30%] right-[1%]"
-                    delay={0.8}
-                />
+        <div className="min-h-screen bg-[#0a0e1a] text-white relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="fixed inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-[#0a0e1a] to-purple-900/20" />
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
             </div>
 
             {/* Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0B1121]/80 backdrop-blur-xl">
-                <div className="max-w-[1400px] mx-auto px-6 h-24 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <Terminal className="w-7 h-7 text-white" />
+            <nav className="relative z-50 border-b border-white/5 bg-[#0a0e1a]/80 backdrop-blur-xl">
+                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                            <Terminal className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-                            DebugMate
+                        <span className="text-2xl font-bold">
+                            <span className="text-white">DEBUG</span>
+                            <span className="text-blue-500">AI</span>
                         </span>
                     </div>
-
-                    {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-10 text-base font-medium text-slate-300">
-                        <a href="#features" className="hover:text-white hover:scale-105 transition-all">Features</a>
-                        <a href="#how-it-works" className="hover:text-white hover:scale-105 transition-all">How it Works</a>
-                        <a href="#pricing" className="hover:text-white hover:scale-105 transition-all">Pricing</a>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        {/* Desktop Sign In Button */}
-                        <button
-                            onClick={handleSignIn}
-                            disabled={isSigningIn}
-                            className="hidden md:flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSigningIn ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Signing In...
-                                </>
-                            ) : (
-                                <>
-                                    <LogIn className="w-5 h-5" />
-                                    Sign In
-                                </>
-                            )}
-                        </button>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-                            aria-label="Toggle menu"
-                        >
-                            {isMobileMenuOpen ? (
-                                <X className="w-6 h-6" />
-                            ) : (
-                                <Menu className="w-6 h-6" />
-                            )}
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleSignIn}
+                        disabled={isSigningIn}
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                        {isSigningIn ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Signing In...
+                            </>
+                        ) : (
+                            <>
+                                <LogIn className="w-4 h-4" />
+                                Sign In
+                            </>
+                        )}
+                    </button>
                 </div>
-
-                {/* Mobile Menu Overlay */}
-                <AnimatePresence>
-                    {isMobileMenuOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="md:hidden border-t border-white/10 bg-[#0B1121]/95 backdrop-blur-xl"
-                        >
-                            <div className="px-6 py-6 space-y-4">
-                                <a
-                                    href="#features"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
-                                >
-                                    Features
-                                </a>
-                                <a
-                                    href="#how-it-works"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
-                                >
-                                    How it Works
-                                </a>
-                                <a
-                                    href="#pricing"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
-                                >
-                                    Pricing
-                                </a>
-                                <button
-                                    onClick={() => {
-                                        setIsMobileMenuOpen(false);
-                                        handleSignIn();
-                                    }}
-                                    disabled={isSigningIn}
-                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSigningIn ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            Signing In...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LogIn className="w-5 h-5" />
-                                            Sign In
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-48 pb-32 px-6 z-10">
-                <div className="max-w-[1400px] mx-auto">
-                    <div className="grid lg:grid-cols-2 gap-20 items-center">
-                        {/* Left Content */}
-                        <div className="text-left pl-4 lg:pl-10">
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-base font-medium text-blue-400 mb-10"
-                            >
-                                <Sparkles className="w-5 h-5" />
-                                <span className="animate-pulse">Powered by Google Gemini AI</span>
-                            </motion.div>
-
+            <section className="relative z-10 pt-20 pb-32 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        {/* Left: Text Content */}
+                        <div>
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="text-6xl lg:text-8xl font-bold tracking-tight mb-8 leading-[1.1]"
+                                className="text-6xl lg:text-7xl font-bold mb-6 leading-tight"
                             >
-                                Debugging is <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 animate-gradient">
-                                    Finally Intelligent.
-                                </span>
+                                Debugging is<br />
+                                Finally <span className="text-blue-500">Intelligent</span>
                             </motion.h1>
 
                             <motion.p
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="text-2xl text-slate-300 mb-12 max-w-2xl leading-relaxed"
+                                transition={{ delay: 0.1 }}
+                                className="text-xl text-gray-400 mb-8 leading-relaxed"
                             >
-                                Stop staring at logs. DebugMate uses advanced AI to analyze errors, generate fixes, and prevent bugs before they reach production.
+                                Empower your developer tool in, modern, trustworthy, and
+                                developer tool for in soumenter your problems.
                             </motion.p>
 
-                            <motion.div
+                            <motion.button
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="flex flex-col sm:flex-row gap-6"
+                                transition={{ delay: 0.2 }}
+                                onClick={handleSignIn}
+                                disabled={isSigningIn}
+                                className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-lg text-lg font-semibold transition-all hover:scale-105 disabled:opacity-50"
                             >
-                                <button
-                                    onClick={handleSignIn}
-                                    disabled={isSigningIn}
-                                    className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-lg font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSigningIn ? (
-                                        <>
-                                            <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            Signing In...
-                                        </>
-                                    ) : (
-                                        <>
-                                            Sign In & Start Free <Zap className="w-6 h-6" />
-                                        </>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setShowDemo(true)}
-                                    className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-lg font-bold rounded-2xl transition-all flex items-center justify-center gap-3 backdrop-blur-sm hover:scale-105 group"
-                                >
-                                    <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Play className="w-4 h-4 fill-current ml-0.5" />
-                                    </div>
-                                    Watch Demo
-                                </button>
-                            </motion.div>
+                                {isSigningIn ? 'Signing In...' : 'Start Debugging'}
+                            </motion.button>
+                        </div>
 
-                            <div className="mt-16 flex items-center gap-8 text-base text-slate-400">
-                                <div className="flex -space-x-4">
-                                    {[
-                                        "https://i.pravatar.cc/100?img=11",
-                                        "https://i.pravatar.cc/100?img=32",
-                                        "https://i.pravatar.cc/100?img=12",
-                                        "https://i.pravatar.cc/100?img=5"
-                                    ].map((src, i) => (
-                                        <div key={i} className="w-12 h-12 rounded-full border-2 border-[#0B1121] bg-slate-700 overflow-hidden hover:scale-110 transition-transform z-0 hover:z-10 relative">
-                                            <img src={src} alt="User" className="w-full h-full object-cover" />
-                                        </div>
-                                    ))}
-                                    <div className="w-12 h-12 rounded-full border-2 border-[#0B1121] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-sm font-bold text-white z-10">
-                                        +2k
-                                    </div>
+                        {/* Right: Code Preview with AI Highlight */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="relative"
+                        >
+                            <div className="bg-[#1a1f2e] rounded-2xl border border-white/10 p-6 shadow-2xl">
+                                {/* Window Controls */}
+                                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/10">
+                                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                                    <span className="ml-4 text-sm text-gray-500">main.ts</span>
                                 </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-1 text-yellow-400 mb-1">
-                                        {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-5 h-5 fill-current" />)}
+
+                                {/* Code Content */}
+                                <div className="font-mono text-sm space-y-2">
+                                    <div className="text-gray-500">
+                                        <span className="text-purple-400">import</span>{' '}
+                                        <span className="text-blue-400">{'{'} Assist {'}'}</span>{' '}
+                                        <span className="text-purple-400">from</span>{' '}
+                                        <span className="text-green-400">'creat1'</span>;
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-lg font-medium text-white">Loved by developers</span>
-                                        <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-xs font-bold border border-green-500/20">4.9/5</span>
+                                    <div className="text-gray-500">
+                                        <span className="text-purple-400">import</span>{' '}
+                                        <span className="text-blue-400">{'{'} App {'}'}</span>{' '}
+                                        <span className="text-purple-400">from</span>{' '}
+                                        <span className="text-green-400">'./src'</span>;
+                                    </div>
+                                    <div className="text-gray-500">
+                                        <span className="text-purple-400">import</span>{' '}
+                                        <span className="text-blue-400">{'{'} chatters {'}'}</span>{' '}
+                                        <span className="text-purple-400">from</span>{' '}
+                                        <span className="text-green-400">'./code/tools/fix-{'$'}'</span>;
+                                    </div>
+                                    <div className="text-gray-500">
+                                        <span className="text-purple-400">import</span>{' '}
+                                        <span className="text-blue-400">{'{'} Tool {'}'}</span>{' '}
+                                        <span className="text-purple-400">from</span>{' '}
+                                        <span className="text-green-400">'./release/pluginapi'</span>;
+                                    </div>
+                                    <div className="h-4" />
+                                    <div className="text-gray-500">
+                                        <span className="text-purple-400">export</span>{' '}
+                                        <span className="text-purple-400">default</span>{' '}
+                                        <span className="text-blue-400">Chatter</span>{' '}
+                                        <span className="text-yellow-400">{'{'}</span>
+                                    </div>
+                                    <div className="pl-4 relative">
+                                        {/* AI Highlight */}
+                                        <div className="absolute -left-2 top-0 bottom-0 w-1 bg-blue-500 rounded" />
+                                        <div className="bg-blue-500/10 -mx-2 px-2 py-1 rounded border-l-2 border-blue-500">
+                                            <span className="text-gray-400">
+                                                <span className="text-blue-400">types</span>:{' '}
+                                                <span className="text-green-400">'focuses'</span>,
+                                            </span>
+                                            <div className="absolute -right-2 top-1/2 -translate-y-1/2">
+                                                <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap flex items-center gap-1">
+                                                    <Zap className="w-3 h-3" />
+                                                    AI Highlight
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="pl-4 text-gray-500">
+                                        <span className="text-blue-400">public</span>{' '}
+                                        <span className="text-yellow-400">functionGetInstall</span>
+                                        <span className="text-gray-400">() =&gt; {'{'}</span>
+                                    </div>
+                                    <div className="pl-8 text-gray-500">
+                                        <span className="text-purple-400">return</span>{' '}
+                                        <span className="text-gray-400">{'{'}</span>
+                                    </div>
+                                    <div className="pl-12 text-gray-500">
+                                        <span className="text-blue-400">consolelisten</span>
+                                        <span className="text-gray-400">(</span>
+                                        <span className="text-blue-400">Install</span>
+                                        <span className="text-gray-400">),</span>
+                                    </div>
+                                    <div className="pl-8 text-gray-500">
+                                        <span className="text-gray-400">{'}'}</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Right Visual - Floating Cards */}
-                        <div className="relative hidden lg:block h-[700px] w-full">
-                            {/* Card 1: The Error */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 50, y: -50 }}
-                                animate={{ opacity: 1, x: 0, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.8 }}
-                                className="absolute top-0 right-10 w-[500px] bg-[#1E293B] border border-slate-700 rounded-2xl p-8 shadow-2xl z-10"
-                            >
-                                <div className="flex items-center gap-3 mb-6 border-b border-slate-700 pb-4">
-                                    <div className="w-4 h-4 rounded-full bg-red-500" />
-                                    <div className="w-4 h-4 rounded-full bg-yellow-500" />
-                                    <div className="w-4 h-4 rounded-full bg-green-500" />
-                                    <span className="ml-auto text-sm text-slate-400">error.log</span>
-                                </div>
-                                <div className="font-mono text-sm text-red-400 space-y-3">
-                                    <p>TypeError: Cannot read properties of undefined (reading 'map')</p>
-                                    <p className="text-slate-500">at UserList (UserList.tsx:42:18)</p>
-                                    <p className="text-slate-500">at renderWithHooks (react-dom.development.js:16305)</p>
-                                </div>
-                            </motion.div>
-
-                            {/* Card 2: The AI Fix */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 50, y: 50 }}
-                                animate={{ opacity: 1, x: 0, y: 0 }}
-                                transition={{ delay: 0.6, duration: 0.8 }}
-                                className="absolute top-[220px] right-[100px] w-[550px] bg-[#0F172A] border border-blue-500/30 rounded-2xl p-8 shadow-2xl z-20 backdrop-blur-xl"
-                            >
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-2 rounded-lg bg-blue-500/20">
-                                        <Sparkles className="w-5 h-5 text-blue-400" />
-                                    </div>
-                                    <span className="text-base font-semibold text-blue-400">AI Fix Generated</span>
-                                </div>
-                                <div className="font-mono text-sm text-slate-300 bg-black/30 p-6 rounded-xl border border-white/5 leading-relaxed">
-                                    <span className="text-purple-400">const</span> UserList = ({'{'} users {'}'}) ={'>'} {'{'}<br />
-                                    &nbsp;&nbsp;<span className="text-slate-500">// Fix: Add optional chaining or default value</span><br />
-                                    &nbsp;&nbsp;<span className="text-green-400">+ if (!users) return null;</span><br />
-                                    &nbsp;&nbsp;<span className="text-purple-400">return</span> (<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;{'{'}users.map(user ={'>'} ...{'}'})<br />
-                                    &nbsp;&nbsp;);<br />
-                                    {'}'};
-                                </div>
-                                <div className="mt-6 flex gap-4">
-                                    <button className="flex-1 py-3 bg-blue-600 rounded-xl text-sm font-bold text-white hover:bg-blue-500 transition-colors">Apply Fix</button>
-                                    <button className="px-6 py-3 bg-white/5 rounded-xl text-sm font-bold text-white hover:bg-white/10 transition-colors">Explain</button>
-                                </div>
-                            </motion.div>
-
-                            {/* Card 3: Success Metric */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.8, duration: 0.5 }}
-                                className="absolute bottom-20 right-[400px] bg-gradient-to-br from-green-500 to-emerald-600 p-8 rounded-3xl shadow-xl z-30 text-white"
-                            >
-                                <CheckCircle className="w-10 h-10 mb-3" />
-                                <p className="text-base font-medium opacity-90">Bug Fixed</p>
-                                <p className="text-3xl font-bold">+50 XP</p>
-                            </motion.div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
-            {/* Features Section - Wider & More Colorful */}
-            <section id="features" className="py-40 relative">
-                <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="text-center mb-24">
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8">Superpowers for your <span className="text-blue-500">debugging workflow</span></h2>
-                        <p className="text-2xl text-slate-300 max-w-3xl mx-auto">
-                            Everything you need to find, fix, and prevent errors in record time.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {[
-                            {
-                                icon: <Zap className="w-8 h-8 text-white" />,
-                                color: "bg-orange-500",
-                                title: "Instant Auto-Fix",
-                                description: "AI analyzes your error and generates production-ready code fixes in seconds."
-                            },
-                            {
-                                icon: <Layers className="w-8 h-8 text-white" />,
-                                color: "bg-purple-500",
-                                title: "Smart Clustering",
-                                description: "Automatically groups similar errors to help you identify patterns and root causes."
-                            },
-                            {
-                                icon: <Shield className="w-8 h-8 text-white" />,
-                                color: "bg-blue-500",
-                                title: "Prevention Mode",
-                                description: "Proactively scans your code to catch bugs and vulnerabilities before deployment."
-                            },
-                            {
-                                icon: <BarChart3 className="w-8 h-8 text-white" />,
-                                color: "bg-green-500",
-                                title: "Real-time Analytics",
-                                description: "Track error trends, MTTR, and business impact with beautiful dashboards."
-                            },
-                            {
-                                icon: <Code2 className="w-8 h-8 text-white" />,
-                                color: "bg-pink-500",
-                                title: "Interactive Playground",
-                                description: "Test fixes safely in an isolated sandbox environment before applying them."
-                            },
-                            {
-                                icon: <Trophy className="w-8 h-8 text-white" />,
-                                color: "bg-yellow-500",
-                                title: "Gamification",
-                                description: "Turn debugging into a game with points, levels, and achievements."
-                            }
-                        ].map((feature, index) => (
+            {/* Features Grid */}
+            <section className="relative z-10 py-20 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {features.map((feature, index) => (
                             <motion.div
                                 key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 viewport={{ once: true }}
-                                className="group p-10 rounded-[2rem] bg-[#1E293B]/50 border border-white/5 hover:bg-[#1E293B] hover:border-white/10 transition-all hover:-translate-y-2"
+                                className="group relative bg-[#1a1f2e]/50 backdrop-blur-sm rounded-2xl p-6 border border-white/5 hover:border-white/20 transition-all hover:scale-105"
                             >
-                                <div className={`w-16 h-16 rounded-2xl ${feature.color} flex items-center justify-center mb-8 shadow-lg group-hover:scale-110 transition-transform`}>
-                                    {feature.icon}
+                                {/* Icon with Gradient */}
+                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                                    <feature.icon className="w-6 h-6 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-4 text-white">{feature.title}</h3>
-                                <p className="text-lg text-slate-300 leading-relaxed">{feature.description}</p>
+
+                                {/* Content */}
+                                <h3 className="text-lg font-bold text-white mb-2">
+                                    {feature.title}
+                                </h3>
+                                <p className="text-sm text-gray-400 leading-relaxed">
+                                    {feature.description}
+                                </p>
+
+                                {/* Hover Glow Effect */}
+                                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity blur-xl -z-10`} />
                             </motion.div>
                         ))}
                     </div>
                 </div>
-            </section >
-
-            {/* How It Works Section */}
-            < section id="how-it-works" className="py-32 relative bg-[#0B1121]/50" >
-                <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="text-center mb-24">
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8">From Error to Fix in <span className="text-blue-500">Seconds</span></h2>
-                        <p className="text-2xl text-slate-300 max-w-3xl mx-auto">
-                            DebugMate integrates seamlessly into your workflow. No complex setup required.
-                        </p>
-                    </div>
-
-                    <div className="relative">
-                        {/* Connecting Line */}
-                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 -translate-y-1/2" />
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-                            {[
-                                {
-                                    step: "01",
-                                    title: "Connect",
-                                    desc: "Add our lightweight SDK to your project with just two lines of code.",
-                                    icon: <Terminal className="w-8 h-8 text-white" />
-                                },
-                                {
-                                    step: "02",
-                                    title: "Analyze",
-                                    desc: "Our AI automatically detects errors and analyzes the stack trace in real-time.",
-                                    icon: <Cpu className="w-8 h-8 text-white" />
-                                },
-                                {
-                                    step: "03",
-                                    title: "Resolve",
-                                    desc: "Get an instant, copy-pasteable solution and deploy the fix with confidence.",
-                                    icon: <CheckCircle className="w-8 h-8 text-white" />
-                                }
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.2 }}
-                                    viewport={{ once: true }}
-                                    className="bg-[#0B1121] border border-white/10 p-8 rounded-3xl relative group hover:border-blue-500/50 transition-colors"
-                                >
-                                    <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center mb-8 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform mx-auto md:mx-0">
-                                        {item.icon}
-                                    </div>
-                                    <div className="absolute top-8 right-8 text-4xl font-bold text-white/5 font-mono">
-                                        {item.step}
-                                    </div>
-                                    <h3 className="text-2xl font-bold mb-4 text-white">{item.title}</h3>
-                                    <p className="text-lg text-slate-400 leading-relaxed">
-                                        {item.desc}
-                                    </p>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section >
-
-            {/* Pricing Section */}
-            < section id="pricing" className="py-32 relative" >
-                <div className="max-w-[1400px] mx-auto px-6">
-                    <div className="text-center mb-24">
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8">Simple, Transparent <span className="text-blue-500">Pricing</span></h2>
-                        <p className="text-2xl text-slate-300 max-w-3xl mx-auto">
-                            Start for free, scale as you grow. No hidden fees.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                        {/* Starter Tier */}
-                        <div className="p-8 rounded-3xl bg-[#1E293B]/30 border border-white/5 hover:border-white/10 transition-all">
-                            <h3 className="text-xl font-bold text-slate-300 mb-2">Starter</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-bold text-white">$0</span>
-                                <span className="text-slate-500">/month</span>
-                            </div>
-                            <p className="text-slate-400 mb-8">Perfect for trying out DebugMate.</p>
-                            <ul className="space-y-4 mb-8">
-                                {[
-                                    "5 AI analyses/month",
-                                    "Basic error explanations",
-                                    "Community support",
-                                    "7-day history",
-                                    "Core features"
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-slate-300">
-                                        <Check className="w-5 h-5 text-blue-500" />
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors border border-white/10">
-                                Get Started
-                            </button>
-                        </div>
-
-                        {/* Pro Tier - Highlighted */}
-                        <div className="p-8 rounded-3xl bg-gradient-to-b from-blue-600/20 to-[#1E293B]/50 border border-blue-500/50 relative transform md:-translate-y-4">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-blue-500 rounded-full text-xs font-bold text-white uppercase tracking-wider">
-                                Most Popular
-                            </div>
-                            <h3 className="text-xl font-bold text-blue-400 mb-2">Pro Developer</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-5xl font-bold text-white">$19</span>
-                                <span className="text-slate-400">/month</span>
-                            </div>
-                            <p className="text-slate-300 mb-8">For serious developers shipping quality code.</p>
-                            <ul className="space-y-4 mb-8">
-                                {[
-                                    "Unlimited AI analyses",
-                                    "Advanced solution generation",
-                                    "Unlimited history retention",
-                                    "Priority support",
-                                    "All premium features",
-                                    "Early access to new features"
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-white">
-                                        <div className="p-1 rounded-full bg-blue-500/20">
-                                            <Check className="w-4 h-4 text-blue-400" />
-                                        </div>
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button
-                                onClick={onGetStarted}
-                                className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg shadow-blue-500/25"
-                            >
-                                Start Free Trial
-                            </button>
-                        </div>
-
-                        {/* Business Tier */}
-                        <div className="p-8 rounded-3xl bg-[#1E293B]/30 border border-white/5 hover:border-white/10 transition-all">
-                            <h3 className="text-xl font-bold text-slate-300 mb-2">Business</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-bold text-white">$99</span>
-                                <span className="text-slate-500">/month</span>
-                            </div>
-                            <p className="text-slate-400 mb-8">For scaling startups and organizations.</p>
-                            <ul className="space-y-4 mb-8">
-                                {[
-                                    "1,000,000 events/month",
-                                    "Unlimited team members",
-                                    "90-day data retention",
-                                    "Custom AI models",
-                                    "SSO & Audit logs",
-                                    "Dedicated success manager"
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-slate-300">
-                                        <Check className="w-5 h-5 text-blue-500" />
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors border border-white/10">
-                                Contact Sales
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section >
-
-            {/* CTA Section - Full Width Gradient */}
-            < section className="py-40 relative overflow-hidden" >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900 opacity-50" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-
-                <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-                    <h2 className="text-5xl md:text-7xl font-bold mb-10 text-white">Ready to debug <span className="text-blue-400">10x faster?</span></h2>
-                    <p className="text-2xl text-blue-100 mb-12 max-w-3xl mx-auto">
-                        Join thousands of developers who are shipping better code with DebugMate.
-                    </p>
-                    <button
-                        onClick={handleSignIn}
-                        disabled={isSigningIn}
-                        className="px-12 py-6 bg-white text-blue-900 text-xl font-bold rounded-full hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/20 hover:scale-105 flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isSigningIn ? (
-                            <>
-                                <div className="w-6 h-6 border-2 border-blue-900/30 border-t-blue-900 rounded-full animate-spin" />
-                                Signing In...
-                            </>
-                        ) : (
-                            <>
-                                Get Started Now <ArrowRight className="w-6 h-6" />
-                            </>
-                        )}
-                    </button>
-                </div>
-            </section >
+            </section>
 
             {/* Footer */}
-            < footer className="py-16 px-6 border-t border-white/10 bg-[#050505]" >
-                <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-3">
-                        <Terminal className="w-8 h-8 text-blue-500" />
-                        <span className="text-2xl font-bold text-white">DebugMate</span>
-                    </div>
-                    <div className="text-base text-slate-400">
-                        © 2025 DebugMate Inc. All rights reserved.
-                    </div>
-                    <div className="flex gap-8 text-base text-slate-400">
-                        <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                        <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
-                        <a href="#" className="hover:text-white transition-colors">Twitter</a>
-                        <a href="#" className="hover:text-white transition-colors">GitHub</a>
-                    </div>
+            <footer className="relative z-10 border-t border-white/5 py-8 px-6 mt-20">
+                <div className="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+                    © 2025 DebugAI Inc. All rights reserved.
                 </div>
-            </footer >
-        </div >
+            </footer>
+        </div>
     );
 };
