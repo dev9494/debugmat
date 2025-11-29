@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { AnalyticsCards } from './components/dashboard/AnalyticsCards';
 import { ProfessionalDashboard } from './components/dashboard/ProfessionalDashboard';
@@ -15,6 +16,8 @@ import { KeyboardShortcutsHelp } from './components/features/KeyboardShortcutsHe
 import { LandingPage } from './components/landing/LandingPage';
 import { HistoryPage } from './components/pages/HistoryPage';
 import { DocsPage } from './components/pages/DocsPage';
+import { PrivacyPolicy } from './components/pages/PrivacyPolicy';
+import { TermsOfService } from './components/pages/TermsOfService';
 import { useKeyboardShortcuts, type KeyboardShortcut } from './hooks/useKeyboardShortcuts';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useErrorStore } from './stores/errorStore';
@@ -24,7 +27,7 @@ import { cn } from './lib/utils';
 
 type View = 'dashboard' | 'clusters' | 'analytics' | 'autofix' | 'prevention' | 'playground' | 'gamification' | 'history' | 'docs';
 
-function App() {
+function MainApp() {
   useFirestoreSync(); // Sync data from Firestore
   const [showLanding, setShowLanding] = useState(true);
   const [activeView, setActiveView] = useState<View>('dashboard');
@@ -236,4 +239,14 @@ function App() {
   );
 }
 
-export default App;
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

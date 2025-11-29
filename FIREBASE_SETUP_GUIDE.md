@@ -39,6 +39,12 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id_here
    - Toggle **Enable**.
    - Select a support email.
    - Click **Save**.
+5. **Add Authorized Domains** (Critical for Deployment):
+   - Go to **Authentication** > **Settings** > **Authorized domains**.
+   - Click **Add domain**.
+   - Enter your Vercel domain (e.g., `debugmate-pi.vercel.app`).
+   - Click **Add**.
+   - *If you don't do this, Google Sign-In will fail on your deployed site!*
 
 ## Step 4: Create Firestore Database
 
