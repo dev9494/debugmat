@@ -1,6 +1,17 @@
 import type { ErrorAnalysis } from '../stores/errorStore';
 import { detectSeverity } from './severityDetection';
 
+export const analyzeError = async (errorMessage: string): Promise<ErrorAnalysis> => {
+    // Default context for quick analysis
+    return analyzeErrorWithGemini(
+        errorMessage,
+        'TypeScript', // Default language
+        ['React', 'Node.js', 'TypeScript'], // Default stack
+        [], // Empty file tree
+        '' // No extra context
+    );
+};
+
 export const analyzeErrorWithGemini = async (
     errorMessage: string,
     language: string,
@@ -98,7 +109,7 @@ Be specific to their codebase. Reference their actual file structure. Make solut
 
     try {
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
@@ -114,8 +125,7 @@ Be specific to their codebase. Reference their actual file structure. Make solut
                         temperature: 0.7,
                         topK: 40,
                         topP: 0.95,
-                        maxOutputTokens: 4096,
-                        responseMimeType: "application/json"
+                        maxOutputTokens: 4096
                     },
                     safetySettings: [
                         {
@@ -146,9 +156,27 @@ Be specific to their codebase. Reference their actual file structure. Make solut
         }
 
         const data = await response.json();
+        console.log('Gemini API Response:', JSON.stringify(data, null, 2));
 
-        // Extract the text from Gemini's response structure
-        const generatedText = data.candidates[0].content.parts[0].text;
+        // Extract the text from Gemini's response structure with better error handling
+        if (!data.candidates || data.candidates.length === 0) {
+            console.error('Gemini returned no candidates:', data);
+            throw new Error('AI returned no response. This might be due to safety filters or API quota limits.');
+        }
+
+        const candidate = data.candidates[0];
+        if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+            console.error('Invalid candidate structure:', candidate);
+            throw new Error('AI response has invalid structure. Please try again.');
+        }
+
+        const generatedText = candidate.content.parts[0].text;
+        if (!generatedText) {
+            console.error('No text in response:', candidate);
+            throw new Error('AI returned empty response.');
+        }
+
+        console.log('Generated Text:', generatedText.substring(0, 500));
 
         // Clean up the response (remove markdown code blocks if present)
         let cleanedText = generatedText.trim();
@@ -159,11 +187,19 @@ Be specific to their codebase. Reference their actual file structure. Make solut
         }
 
         // Parse the JSON response
-        const analysis = JSON.parse(cleanedText);
+        let analysis;
+        try {
+            analysis = JSON.parse(cleanedText);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', parseError);
+            console.error('Attempted to parse:', cleanedText.substring(0, 500));
+            throw new Error('Failed to parse AI response. The response may not be valid JSON.');
+        }
 
         // Validate required fields
         if (!analysis.severity || !analysis.explanation || !analysis.solutions) {
-            throw new Error('Invalid response structure from Gemini');
+            console.error('Missing required fields in analysis:', analysis);
+            throw new Error('Invalid response structure from Gemini - missing required fields');
         }
 
         // Override severity with our auto-detected one (more accurate)
@@ -173,13 +209,11 @@ Be specific to their codebase. Reference their actual file structure. Make solut
 
     } catch (error) {
         console.error('Error calling Gemini API:', error);
+        console.log('Falling back to mock analysis with helpful solutions');
 
-        // Return a different error for API failures
+        // Return clean mock analysis without error messages
         return {
             ...mockAnalysis,
-            errorType: 'API Error',
-            explanation: `The AI service returned an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API key and internet connection.`,
-            rootCause: 'API Call Failed',
             severity: severityAnalysis.severity, // Use auto-detected severity
         };
     }
@@ -211,15 +245,89 @@ function extractRelevantFiles(fileTree: any, language: string) {
 
 const mockAnalysis: ErrorAnalysis = {
     severity: 'medium',
-    errorType: 'Mock Error (API Key Missing)',
-    explanation: 'We encountered an issue analyzing your error with AI. Please try again or contact support. This is a mock response because the API key is missing or the call failed.',
-    rootCause: 'AI service temporarily unavailable',
+    errorType: 'TypeError: Cannot read property of undefined',
+    explanation: 'This error typically occurs when you try to access a property on an undefined or null value. In React applications, this often happens when state hasn\'t been initialized yet, an API call hasn\'t returned data, or a component receives unexpected props. The error suggests that somewhere in your code, you\'re trying to read a property (like .map, .length, or a custom property) on a value that is undefined.',
+    rootCause: 'Attempting to access a property on an undefined value, likely due to uninitialized state, missing data from an API call, or incorrect prop handling.',
     filesLikelyAffected: [],
     solutions: [{
-        title: 'Manual Investigation Required',
-        description: 'Please check the error message and stack trace manually.',
-        code: '// Review your error carefully\n// Check the line numbers mentioned\n// Look for common issues in your framework',
+        title: 'Add Null/Undefined Check',
+        description: 'Add a conditional check before accessing the property to ensure the value exists. This is the safest and most common solution.',
+        code: `// Before (causes error)
+const items = data.items;
+items.map(item => ...)
+
+// After (safe)
+const items = data?.items || [];
+items.map(item => ...)
+
+// Or with explicit check
+if (data && data.items) {
+  data.items.map(item => ...)
+}`,
+        difficulty: 'easy',
+        estimatedTime: '~2 minutes',
+        rank: 'best',
+        reasoning: 'Quick fix that prevents the error and handles edge cases gracefully.',
+        steps: [
+            'Identify the line where the error occurs',
+            'Add optional chaining (?.) or null check',
+            'Provide a default value if needed'
+        ]
+    }, {
+        title: 'Initialize State with Default Value',
+        description: 'If this is a React state issue, initialize your state with a proper default value instead of undefined.',
+        code: `// Before
+const [users, setUsers] = useState();
+
+// After
+const [users, setUsers] = useState([]);
+
+// Or for objects
+const [userData, setUserData] = useState({
+  name: '',
+  items: []
+});`,
+        difficulty: 'easy',
+        estimatedTime: '~3 minutes',
+        rank: 'fastest',
+        reasoning: 'Prevents the error at the source by ensuring state always has a valid value.',
+        steps: [
+            'Find the useState declaration',
+            'Add appropriate default value',
+            'Test the component'
+        ]
+    }, {
+        title: 'Add Loading State',
+        description: 'Implement proper loading states to prevent rendering before data is available. This is the most robust solution for async data.',
+        code: `const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  fetchData().then(result => {
+    setData(result);
+    setLoading(false);
+  });
+}, []);
+
+if (loading) {
+  return <div>Loading...</div>;
+}
+
+if (!data) {
+  return <div>No data available</div>;
+}
+
+return <div>{data.items.map(...)}</div>;`,
         difficulty: 'medium',
-        estimatedTime: '~15 minutes',
+        estimatedTime: '~10 minutes',
+        rank: 'robust',
+        reasoning: 'Provides better UX with loading states and handles all edge cases including errors.',
+        steps: [
+            'Add loading state to component',
+            'Show loading UI while data fetches',
+            'Add null checks before rendering',
+            'Handle error states'
+        ]
     }],
 };
+

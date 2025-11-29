@@ -27,6 +27,7 @@ interface GamificationState {
     incrementErrorsFixed: () => void;
     checkAchievements: () => void;
     resetStreak: () => void;
+    setStats: (stats: UserStats) => void;
 }
 
 const ACHIEVEMENTS: Achievement[] = [
@@ -184,6 +185,8 @@ export const useGamificationStore = create<GamificationState>()(
                     },
                 }));
             },
+
+            setStats: (stats) => set({ stats }),
         }),
         {
             name: 'gamification-storage',

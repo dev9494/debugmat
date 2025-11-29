@@ -5,10 +5,11 @@ import {
     CheckCircle, XCircle, ArrowRight, Play,
     MessageSquare, Layers, BarChart3, GitPullRequest,
     Trophy, ChevronRight, Star, Check, Sparkles,
-    Bug, Search, Lock
+    Bug, Search, Lock, LogIn
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DemoVideoModal } from './DemoVideoModal';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LandingPageProps {
     onGetStarted: () => void;
@@ -46,6 +47,46 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
     const { scrollYProgress } = useScroll();
     const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
     const [showDemo, setShowDemo] = useState(false);
+    const { currentUser, signInWithGoogle } = useAuth();
+    const [isSigningIn, setIsSigningIn] = useState(false);
+
+    const handleSignIn = async () => {
+        setIsSigningIn(true);
+        try {
+            await signInWithGoogle();
+            // After successful sign in, navigate to dashboard
+            onGetStarted();
+        } catch (error: any) {
+            console.error("Sign in failed:", error);
+
+            // Show user-friendly error messages
+            if (error?.code === 'auth/configuration-not-found') {
+                alert(
+                    '⚠️ Google Sign-In Not Configured\n\n' +
+                    'Please enable Google authentication in Firebase Console:\n\n' +
+                    '1. Go to Firebase Console > Authentication\n' +
+                    '2. Click "Sign-in method" tab\n' +
+                    '3. Enable "Google" provider\n' +
+                    '4. Save and try again\n\n' +
+                    'See FIREBASE_AUTH_FIX.md for detailed instructions.'
+                );
+            } else if (error?.code === 'auth/popup-closed-by-user') {
+                // User closed the popup, no need to show error
+                console.log('Sign-in popup closed by user');
+            } else {
+                alert('Sign-in failed: ' + (error?.message || 'Unknown error'));
+            }
+        } finally {
+            setIsSigningIn(false);
+        }
+    };
+
+    // If user is already signed in, show their profile
+    useEffect(() => {
+        if (currentUser) {
+            onGetStarted();
+        }
+    }, [currentUser, onGetStarted]);
 
     return (
         <div className="min-h-screen bg-[#0B1121] text-white overflow-x-hidden font-sans selection:bg-blue-500/30">
@@ -104,10 +145,21 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                     </div>
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={onGetStarted}
-                            className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 flex items-center gap-2 text-base"
+                            onClick={handleSignIn}
+                            disabled={isSigningIn}
+                            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 flex items-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Get Started <ArrowRight className="w-5 h-5" />
+                            {isSigningIn ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Signing In...
+                                </>
+                            ) : (
+                                <>
+                                    <LogIn className="w-5 h-5" />
+                                    Sign In with Google
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -156,10 +208,20 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                                 className="flex flex-col sm:flex-row gap-6"
                             >
                                 <button
-                                    onClick={onGetStarted}
-                                    className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-lg font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 hover:scale-105"
+                                    onClick={handleSignIn}
+                                    disabled={isSigningIn}
+                                    className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-lg font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Start Debugging Free <Zap className="w-6 h-6" />
+                                    {isSigningIn ? (
+                                        <>
+                                            <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Signing In...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Sign In & Start Free <Zap className="w-6 h-6" />
+                                        </>
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => setShowDemo(true)}
@@ -510,10 +572,20 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                         Join thousands of developers who are shipping better code with DebugMate.
                     </p>
                     <button
-                        onClick={onGetStarted}
-                        className="px-12 py-6 bg-white text-blue-900 text-xl font-bold rounded-full hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/20 hover:scale-105 flex items-center justify-center gap-3 mx-auto"
+                        onClick={handleSignIn}
+                        disabled={isSigningIn}
+                        className="px-12 py-6 bg-white text-blue-900 text-xl font-bold rounded-full hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/20 hover:scale-105 flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Get Started Now <ArrowRight className="w-6 h-6" />
+                        {isSigningIn ? (
+                            <>
+                                <div className="w-6 h-6 border-2 border-blue-900/30 border-t-blue-900 rounded-full animate-spin" />
+                                Signing In...
+                            </>
+                        ) : (
+                            <>
+                                Get Started Now <ArrowRight className="w-6 h-6" />
+                            </>
+                        )}
                     </button>
                 </div>
             </section >

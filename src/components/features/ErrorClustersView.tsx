@@ -112,11 +112,9 @@ export const ErrorClustersView = () => {
                                             <div
                                                 className={cn(
                                                     'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-                                                    getSeverityColor(cluster.severity).replace(
-                                                        'text-',
-                                                        'bg-'
-                                                    ) + '/20',
-                                                    getSeverityColor(cluster.severity)
+                                                    getSeverityColor(cluster.severity).bg,
+                                                    getSeverityColor(cluster.severity).border,
+                                                    getSeverityColor(cluster.severity).text
                                                 )}
                                             >
                                                 {cluster.severity}

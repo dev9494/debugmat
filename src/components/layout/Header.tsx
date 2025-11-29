@@ -1,35 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bug, Search, Bell, Settings, ChevronRight, User, Sparkles, LogOut, Moon, Sun, Monitor, Volume2, Shield, X, Check } from 'lucide-react';
-import { useAuthStore } from '../../stores/authStore';
-import { useUserStore } from '../../stores/userStore';
+import { Bug, Search, Bell, User, LogOut } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useUIStore } from '../../stores/uiStore';
+import { ThemeToggle } from './ThemeToggle';
 import { cn } from '../../lib/utils';
 
 export const Header = () => {
-    const { isAuthenticated, username, avatar, login, logout } = useAuthStore();
-    const { tier } = useUserStore();
+    const { currentUser, signInWithGoogle, logout } = useAuth();
     const { setCommandPaletteOpen } = useUIStore();
 
     const [showNotifications, setShowNotifications] = useState(false);
-    const [showSettings, setShowSettings] = useState(false);
+    const [activeTab, setActiveTab] = useState('Dashboard');
     const notificationRef = useRef<HTMLDivElement>(null);
-    const settingsRef = useRef<HTMLDivElement>(null);
 
-    // Mock Notifications
     const notifications = [
         { id: 1, title: 'Analysis Complete', message: 'Error #402 has been analyzed successfully.', time: '2m ago', unread: true },
         { id: 2, title: 'New Feature', message: 'Try the new Prevention Mode!', time: '1h ago', unread: true },
-        { id: 3, title: 'System Update', message: 'DebugMate has been updated to v2.0.', time: '1d ago', unread: false },
     ];
 
-    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
                 setShowNotifications(false);
-            }
-            if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
-                setShowSettings(false);
             }
         };
 
@@ -37,30 +29,53 @@ export const Header = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const handleTabClick = (tab: string) => {
+        setActiveTab(tab);
+        window.dispatchEvent(new CustomEvent('tabChange', { detail: { tab } }));
+    };
+
+    const handleLogin = async () => {
+        try {
+            await signInWithGoogle();
+        } catch (error) {
+            console.error("Login failed", error);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#0f172a]/70 backdrop-blur-xl">
-            {/* Main Header */}
-            <div className="flex h-16 items-center justify-between px-6">
-                <div className="flex items-center gap-8">
-                    <div className="flex items-center gap-3 group cursor-pointer">
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg shadow-blue-500/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-blue-500/40">
-                            <Bug className="h-5 w-5 text-white" />
-                            <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/20" />
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-20 items-center justify-between px-8">
+                {/* Left: Logo + Nav */}
+                <div className="flex items-center gap-10">
+                    {/* Logo */}
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+                            <Bug className="h-5 w-5 text-primary-foreground" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all">
+                        <span className="text-xl font-bold text-foreground">
                             DebugMate
                         </span>
                     </div>
 
-                    <nav className="hidden md:flex items-center gap-1">
-                        {['Dashboard', 'History', 'Docs'].map((item, i) => (
+                    {/* Navigation */}
+                    <nav className="hidden md:flex items-center gap-2">
+                        {['Dashboard', 'History', 'Docs'].map((item) => (
                             <button
                                 key={item}
+                                onClick={() => handleTabClick(item)}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                                    i === 0
-                                        ? "text-white bg-white/10 shadow-sm border border-white/5"
-                                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                                    "px-5 py-2.5 text-base font-medium rounded-lg transition-colors",
+                                    activeTab === item
+                                        ? "text-foreground bg-muted"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                 )}
                             >
                                 {item}
@@ -69,59 +84,62 @@ export const Header = () => {
                     </nav>
                 </div>
 
+                {/* Right: Search + Actions */}
                 <div className="flex items-center gap-4">
+                    {/* Search */}
                     <div
                         onClick={() => setCommandPaletteOpen(true)}
-                        className="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg bg-black/20 border border-white/5 text-slate-400 hover:text-white hover:border-white/10 hover:bg-black/40 transition-all cursor-text w-64 group focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/50"
+                        className="hidden md:flex items-center gap-3 px-4 py-2.5 rounded-lg border border-input bg-background text-base text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer min-w-[280px]"
                     >
-                        <Search className="h-4 w-4 group-focus-within:text-blue-400 transition-colors" />
-                        <span className="text-sm flex-1">Search...</span>
-                        <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 font-mono text-[10px] font-medium text-slate-500 opacity-100">
-                            <span className="text-xs">⌘</span>K
+                        <Search className="h-5 w-5" />
+                        <span>Search...</span>
+                        <kbd className="ml-auto hidden lg:inline-flex h-6 items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium text-muted-foreground">
+                            <span>⌘</span>K
                         </kbd>
                     </div>
 
-                    <div className="flex items-center gap-2 border-l border-white/10 pl-4 relative">
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                        {/* Theme Toggle */}
+                        <ThemeToggle />
+
                         {/* Notifications */}
                         <div className="relative" ref={notificationRef}>
                             <button
-                                onClick={() => {
-                                    setShowNotifications(!showNotifications);
-                                    setShowSettings(false);
-                                }}
+                                onClick={() => setShowNotifications(!showNotifications)}
                                 className={cn(
-                                    "relative p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-white/5",
-                                    showNotifications && "bg-white/5 text-white"
+                                    "relative p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+                                    showNotifications && "bg-accent text-foreground"
                                 )}
                             >
                                 <Bell className="h-5 w-5" />
-                                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-[#0f172a] animate-pulse" />
+                                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary" />
                             </button>
 
                             {/* Notifications Dropdown */}
                             {showNotifications && (
-                                <div className="absolute right-0 mt-2 w-80 rounded-xl bg-[#0f172a] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50">
-                                    <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
-                                        <h3 className="font-semibold text-white">Notifications</h3>
-                                        <span className="text-xs text-blue-400 font-medium px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20">2 New</span>
+                                <div className="fixed right-4 mt-2 w-96 rounded-xl border-2 border-border bg-popover shadow-2xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200 z-[9999]">
+                                    <div className="p-5 border-b border-border flex items-center justify-between bg-card">
+                                        <h3 className="font-semibold text-lg text-foreground">Notifications</h3>
+                                        <span className="text-sm text-muted-foreground px-2.5 py-1 rounded-md bg-primary/10 text-primary font-medium">2 New</span>
                                     </div>
-                                    <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                                    <div className="max-h-[400px] overflow-y-auto bg-card">
                                         {notifications.map((notification) => (
-                                            <div key={notification.id} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <h4 className={cn("text-sm font-medium", notification.unread ? "text-white" : "text-slate-400")}>
+                                            <div key={notification.id} className="p-5 border-b border-border hover:bg-accent/50 transition-colors cursor-pointer">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className={cn("text-base font-semibold", notification.unread ? "text-foreground" : "text-muted-foreground")}>
                                                         {notification.title}
                                                     </h4>
-                                                    <span className="text-xs text-slate-500">{notification.time}</span>
+                                                    <span className="text-sm text-muted-foreground">{notification.time}</span>
                                                 </div>
-                                                <p className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors line-clamp-2">
+                                                <p className="text-sm text-muted-foreground leading-relaxed">
                                                     {notification.message}
                                                 </p>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="p-2 border-t border-white/5 bg-white/[0.02]">
-                                        <button className="w-full py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors">
+                                    <div className="p-3 border-t border-border bg-card">
+                                        <button className="w-full py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                                             Mark all as read
                                         </button>
                                     </div>
@@ -129,101 +147,38 @@ export const Header = () => {
                             )}
                         </div>
 
-                        {/* Settings */}
-                        <div className="relative" ref={settingsRef}>
-                            <button
-                                onClick={() => {
-                                    setShowSettings(!showSettings);
-                                    setShowNotifications(false);
-                                }}
-                                className={cn(
-                                    "p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-white/5",
-                                    showSettings && "bg-white/5 text-white"
-                                )}
-                            >
-                                <Settings className="h-5 w-5" />
-                            </button>
-
-                            {/* Settings Dropdown */}
-                            {showSettings && (
-                                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#0f172a] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50">
-                                    <div className="p-4 border-b border-white/5 bg-white/5">
-                                        <h3 className="font-semibold text-white">Quick Settings</h3>
-                                    </div>
-                                    <div className="p-2 space-y-1">
-                                        <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-slate-300 hover:text-white transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <Moon className="w-4 h-4 text-slate-500 group-hover:text-blue-400" />
-                                                <span>Theme</span>
-                                            </div>
-                                            <span className="text-xs text-slate-500">Dark</span>
-                                        </button>
-                                        <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-slate-300 hover:text-white transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <Volume2 className="w-4 h-4 text-slate-500 group-hover:text-blue-400" />
-                                                <span>Sound</span>
-                                            </div>
-                                            <span className="text-xs text-slate-500">On</span>
-                                        </button>
-                                        <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-slate-300 hover:text-white transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <Shield className="w-4 h-4 text-slate-500 group-hover:text-blue-400" />
-                                                <span>Privacy</span>
-                                            </div>
-                                        </button>
-                                    </div>
-                                    <div className="p-2 border-t border-white/5 mt-2">
-                                        <button
-                                            onClick={logout}
-                                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-500/10 text-sm text-red-400 hover:text-red-300 transition-colors"
-                                        >
-                                            <LogOut className="w-4 h-4" />
-                                            Sign Out
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {isAuthenticated ? (
-                            <div className="flex items-center gap-3 pl-2 cursor-pointer group">
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">{username}</p>
-                                    <div className="flex items-center justify-end gap-1">
-                                        {tier === 'pro' && <Sparkles className="w-3 h-3 text-amber-400" />}
-                                        <p className="text-xs text-slate-400 capitalize">{tier} Plan</p>
-                                    </div>
-                                </div>
-                                <div className="relative">
+                        {/* User */}
+                        {currentUser ? (
+                            <div className="flex items-center gap-3 pl-3">
+                                <div className="flex items-center gap-3">
                                     <img
-                                        src={avatar || ''}
-                                        alt={username || ''}
-                                        className="h-9 w-9 rounded-full border border-white/10 ring-2 ring-transparent group-hover:ring-blue-500/20 transition-all"
+                                        src={currentUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.email}`}
+                                        alt={currentUser.displayName || 'User'}
+                                        className="h-9 w-9 rounded-full border-2 border-border"
                                     />
-                                    <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-[#0f172a]" />
+                                    <div className="hidden lg:block text-sm">
+                                        <p className="font-medium text-foreground">{currentUser.displayName}</p>
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                    title="Sign Out"
+                                >
+                                    <LogOut className="h-5 w-5" />
+                                </button>
                             </div>
                         ) : (
                             <button
-                                onClick={login}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-medium hover:bg-blue-50 transition-colors text-sm shadow-lg shadow-white/10 hover:shadow-white/20 hover:scale-105 active:scale-95"
+                                onClick={handleLogin}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-base font-semibold hover:bg-primary/90 transition-colors"
                             >
-                                <User className="h-4 w-4" />
+                                <User className="h-5 w-5" />
                                 Sign In
                             </button>
                         )}
                     </div>
                 </div>
-            </div>
-
-            {/* Breadcrumbs & Sub-nav */}
-            <div className="flex h-10 items-center gap-2 px-6 border-t border-white/5 bg-black/20 text-xs text-slate-400 backdrop-blur-sm">
-                <span className="hover:text-white cursor-pointer transition-colors hover:underline">Home</span>
-                <ChevronRight className="h-3 w-3" />
-                <span className="text-blue-400 font-medium flex items-center gap-1">
-                    <Bug className="w-3 h-3" />
-                    Dashboard
-                </span>
             </div>
         </header>
     );

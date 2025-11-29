@@ -124,24 +124,66 @@ export const AIChatPanel = () => {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar relative">
                 {!currentConversation || currentConversation.messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                        <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 animate-pulse">
-                            <Sparkles className="w-8 h-8 text-blue-400" />
-                        </div>
-                        <h4 className="text-xl font-bold text-white mb-2">Start a Conversation</h4>
-                        <p className="text-base text-slate-400 max-w-sm">
-                            Ask me about your errors, get coding help, or discuss best practices.
-                        </p>
-                        {currentAnalysis && (
-                            <div className="mt-6 p-4 rounded-lg bg-blue-500/5 border border-blue-500/10 backdrop-blur-sm">
-                                <p className="text-sm text-blue-400 mb-2 font-semibold">💡 Try asking:</p>
-                                <ul className="text-sm text-slate-400 space-y-1 text-left">
-                                    <li>• "How do I fix this {currentAnalysis.errorType}?"</li>
-                                    <li>• "What causes this error?"</li>
-                                    <li>• "Show me the best solution"</li>
-                                </ul>
+                    <div className="flex flex-col h-full p-6 space-y-6">
+                        <div className="text-center">
+                            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4 animate-pulse border border-blue-500/20">
+                                <Sparkles className="w-10 h-10 text-blue-400" />
                             </div>
-                        )}
+                            <h4 className="text-2xl font-bold text-white mb-2">Start a Conversation</h4>
+                            <p className="text-base text-slate-300 max-w-sm mx-auto leading-relaxed">
+                                Ask me about your errors, get coding help, or discuss best practices.
+                            </p>
+                        </div>
+
+                        {/* Suggested Questions */}
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">💬 Try asking:</p>
+                            {currentAnalysis ? (
+                                <>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-blue-300 mb-1 group-hover:text-blue-200">How do I fix this {currentAnalysis.errorType}?</p>
+                                        <p className="text-xs text-slate-400">Get step-by-step guidance</p>
+                                    </button>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-purple-300 mb-1 group-hover:text-purple-200">What causes this error?</p>
+                                        <p className="text-xs text-slate-400">Understand the root cause</p>
+                                    </button>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20 hover:border-green-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-green-300 mb-1 group-hover:text-green-200">Show me the best solution</p>
+                                        <p className="text-xs text-slate-400">Get optimized code</p>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 hover:border-blue-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-blue-300 mb-1 group-hover:text-blue-200">How do I debug a React component?</p>
+                                        <p className="text-xs text-slate-400">Learn debugging techniques</p>
+                                    </button>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-purple-300 mb-1 group-hover:text-purple-200">What are common TypeScript errors?</p>
+                                        <p className="text-xs text-slate-400">Avoid common pitfalls</p>
+                                    </button>
+                                    <button className="w-full text-left p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20 hover:border-green-500/40 transition-all group">
+                                        <p className="text-sm font-bold text-green-300 mb-1 group-hover:text-green-200">Best practices for error handling</p>
+                                        <p className="text-xs text-slate-400">Write better code</p>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Features */}
+                        <div className="grid grid-cols-2 gap-3 mt-auto">
+                            <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+                                <div className="text-2xl mb-2">🎯</div>
+                                <p className="text-xs font-bold text-white mb-1">Context-Aware</p>
+                                <p className="text-xs text-slate-400">Understands your errors</p>
+                            </div>
+                            <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+                                <div className="text-2xl mb-2">⚡</div>
+                                <p className="text-xs font-bold text-white mb-1">Instant Help</p>
+                                <p className="text-xs text-slate-400">Fast responses</p>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <>

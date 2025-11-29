@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is accessing their own data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function to validate error data structure
+    function isValidError() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['userId', 'errorMessage', 'timestamp', 'analysis']) &&
+             data.userId == request.auth.uid &&
+             data.errorMessage is string &&
+             data.timestamp is number;
+    }
+
+    // --- USERS COLLECTION ---
+    // Users can only read and write their own profile
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId); // Allow creation on first login
+      allow update: if isOwner(userId); // Allow updating settings/stats
+      allow delete: if isOwner(userId); // Allow account deletion
+    }
+
+    // --- ERRORS COLLECTION ---
+    // Users can only access errors they created
+    match /errors/{errorId} {
+      // Allow reading only if the error belongs to the user
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Allow creating new errors if they are assigned to the authenticated user
+      allow create: if isAuthenticated() && isValidError();
+      
+      // Allow updating/deleting only if the error belongs to the user
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

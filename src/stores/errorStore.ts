@@ -10,11 +10,14 @@ export interface ErrorAnalysis {
     explanation: string;
     severity: ErrorSeverity;
     solutions: Array<{
+        rank: 'best' | 'fastest' | 'robust';
         title: string;
         description: string;
         code: string;
+        reasoning: string;
         difficulty: 'easy' | 'medium' | 'hard';
         estimatedTime: string;
+        steps: string[];
     }>;
     filesLikelyAffected: Array<{
         path: string;
@@ -52,8 +55,10 @@ interface ErrorState {
     setCurrentError: (error: string) => void;
     setCurrentAnalysis: (analysis: ErrorAnalysis | null) => void;
     setIsAnalyzing: (isAnalyzing: boolean) => void;
+    setHistory: (history: ErrorHistoryItem[]) => void;
     addToHistory: (item: ErrorHistoryItem) => void;
     removeFromHistory: (id: string) => void;
+    clearHistory: () => void;
     updateErrorStatus: (id: string, status: ErrorStatus) => void;
     updateErrorTags: (id: string, tags: string[]) => void;
     setFilters: (filters: Partial<ErrorFilters>) => void;
@@ -84,6 +89,8 @@ export const useErrorStore = create<ErrorState>()(
 
             setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
 
+            setHistory: (history) => set({ errorHistory: history }),
+
             addToHistory: (item) =>
                 set((state) => ({
                     errorHistory: [item, ...state.errorHistory].slice(0, 50), // Keep last 50
@@ -93,6 +100,8 @@ export const useErrorStore = create<ErrorState>()(
                 set((state) => ({
                     errorHistory: state.errorHistory.filter((item) => item.id !== id),
                 })),
+
+            clearHistory: () => set({ errorHistory: [] }),
 
             updateErrorStatus: (id, status) =>
                 set((state) => ({

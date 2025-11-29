@@ -8,10 +8,14 @@ import {
     BarChart3,
     FileCode,
     Calendar,
+    ArrowUp,
+    ArrowDown,
+    Minus,
 } from 'lucide-react';
 import { useErrorStore } from '../../stores/errorStore';
 import { calculateAnalytics, generateTrendChartData } from '../../lib/analytics';
 import { getSeverityColor } from '../../lib/severityDetection';
+import { VisualErrorMap } from './VisualErrorMap';
 import { cn } from '../../lib/utils';
 
 export const AnalyticsDashboard = () => {
@@ -24,12 +28,12 @@ export const AnalyticsDashboard = () => {
 
     if (errorHistory.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 animate-pulse">
-                    <BarChart3 className="w-8 h-8 text-blue-400" />
+            <div className="flex flex-col items-center justify-center h-full p-12 text-center">
+                <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
+                    <BarChart3 className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">No Analytics Yet</h3>
-                <p className="text-base text-slate-400 max-w-sm">
+                <h3 className="text-2xl font-bold text-foreground mb-3">No Analytics Yet</h3>
+                <p className="text-base text-muted-foreground max-w-md leading-relaxed">
                     Analyze some errors first, and I'll generate beautiful insights and trends.
                 </p>
             </div>
@@ -38,120 +42,133 @@ export const AnalyticsDashboard = () => {
 
     const maxErrorsInDay = Math.max(...trendData.map(d => d.count), 1);
 
+    // Stat cards configuration
+    const stats = [
+        {
+            label: 'Errors Analyzed',
+            value: analytics.totalErrors.toLocaleString(),
+            change: analytics.trends.percentageChange,
+            icon: AlertTriangle,
+            color: 'blue',
+        },
+        {
+            label: 'Time Saved',
+            value: `${analytics.mttr}m`,
+            subtext: 'MTTR',
+            icon: Clock,
+            color: 'purple',
+        },
+        {
+            label: 'Success Rate',
+            value: `${analytics.resolutionRate}%`,
+            icon: CheckCircle,
+            color: 'green',
+        },
+        {
+            label: 'Daily Average',
+            value: analytics.errorRate.toFixed(1),
+            subtext: 'errors/day',
+            icon: Calendar,
+            color: 'orange',
+        },
+    ];
+
     return (
-        <div className="space-y-6 animate-up">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div>
-                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-                    <BarChart3 className="w-8 h-8 text-blue-400" />
-                    Analytics Dashboard
-                </h2>
-                <p className="text-base text-slate-400">
-                    Insights and trends from your error data
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold text-foreground mb-2">Analytics</h2>
+                    <p className="text-base text-muted-foreground">
+                        Insights and trends from your error data
+                    </p>
+                </div>
             </div>
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Errors */}
-                <div className="glass-card p-5 rounded-xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 rounded-lg bg-blue-500/20">
-                                <AlertTriangle className="w-5 h-5 text-blue-400" />
-                            </div>
-                            <div
-                                className={cn(
-                                    'flex items-center gap-1 text-sm font-semibold',
-                                    analytics.trends.percentageChange > 0
-                                        ? 'text-red-400'
-                                        : analytics.trends.percentageChange < 0
-                                            ? 'text-green-400'
-                                            : 'text-slate-400'
+            {/* Professional Stat Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    const isPositive = stat.change !== undefined && stat.change > 0;
+                    const isNegative = stat.change !== undefined && stat.change < 0;
+
+                    return (
+                        <div
+                            key={index}
+                            className="glass-card p-6 rounded-lg border hover:border-primary/30 transition-all group"
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className={cn(
+                                    "p-2.5 rounded-lg",
+                                    stat.color === 'blue' && "bg-blue-500/10",
+                                    stat.color === 'purple' && "bg-purple-500/10",
+                                    stat.color === 'green' && "bg-green-500/10",
+                                    stat.color === 'orange' && "bg-orange-500/10"
+                                )}>
+                                    <Icon className={cn(
+                                        "w-5 h-5",
+                                        stat.color === 'blue' && "text-blue-500",
+                                        stat.color === 'purple' && "text-purple-500",
+                                        stat.color === 'green' && "text-green-500",
+                                        stat.color === 'orange' && "text-orange-500"
+                                    )} />
+                                </div>
+                                {stat.change !== undefined && (
+                                    <div className={cn(
+                                        "flex items-center gap-1 text-xs font-mono font-semibold px-2 py-1 rounded",
+                                        isPositive && "text-red-500 bg-red-500/10",
+                                        isNegative && "text-green-500 bg-green-500/10",
+                                        !isPositive && !isNegative && "text-muted-foreground bg-muted"
+                                    )}>
+                                        {isPositive && <ArrowUp className="w-3 h-3" />}
+                                        {isNegative && <ArrowDown className="w-3 h-3" />}
+                                        {!isPositive && !isNegative && <Minus className="w-3 h-3" />}
+                                        {Math.abs(stat.change)}%
+                                    </div>
                                 )}
-                            >
-                                {analytics.trends.percentageChange > 0 ? (
-                                    <TrendingUp className="w-4 h-4" />
-                                ) : analytics.trends.percentageChange < 0 ? (
-                                    <TrendingDown className="w-4 h-4" />
-                                ) : null}
-                                {Math.abs(analytics.trends.percentageChange)}%
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-4xl font-bold font-mono text-foreground tracking-tight">
+                                    {stat.value}
+                                </p>
+                                <p className="text-sm text-muted-foreground font-medium">
+                                    {stat.label}
+                                    {stat.subtext && <span className="text-xs ml-1">({stat.subtext})</span>}
+                                </p>
                             </div>
                         </div>
-                        <p className="text-4xl font-bold text-white mb-1">{analytics.totalErrors}</p>
-                        <p className="text-sm text-blue-300">Total Errors</p>
-                    </div>
-                </div>
-
-                {/* MTTR */}
-                <div className="glass-card p-5 rounded-xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 rounded-lg bg-purple-500/20">
-                                <Clock className="w-5 h-5 text-purple-400" />
-                            </div>
-                        </div>
-                        <p className="text-4xl font-bold text-white mb-1">{analytics.mttr}</p>
-                        <p className="text-sm text-purple-300">MTTR (minutes)</p>
-                    </div>
-                </div>
-
-                {/* Resolution Rate */}
-                <div className="glass-card p-5 rounded-xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 rounded-lg bg-green-500/20">
-                                <CheckCircle className="w-5 h-5 text-green-400" />
-                            </div>
-                        </div>
-                        <p className="text-4xl font-bold text-white mb-1">{analytics.resolutionRate}%</p>
-                        <p className="text-sm text-green-300">Resolution Rate</p>
-                    </div>
-                </div>
-
-                {/* Error Rate */}
-                <div className="glass-card p-5 rounded-xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="p-2 rounded-lg bg-orange-500/20">
-                                <Calendar className="w-5 h-5 text-orange-400" />
-                            </div>
-                        </div>
-                        <p className="text-4xl font-bold text-white mb-1">{analytics.errorRate}</p>
-                        <p className="text-sm text-orange-300">Errors/Day</p>
-                    </div>
-                </div>
+                    );
+                })}
             </div>
 
-            {/* Error Trend Chart */}
-            <div className="glass-card p-6 rounded-xl">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-blue-400" />
-                    Error Trend (Last 30 Days)
-                </h3>
+            {/* Error Trend Chart - Professional */}
+            <div className="glass-card p-6 rounded-lg border">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-primary" />
+                        Error Trend
+                    </h3>
+                    <span className="text-xs text-muted-foreground font-mono">Last 30 Days</span>
+                </div>
                 <div className="space-y-2">
                     {trendData.length > 0 ? (
-                        trendData.map((day, index) => (
-                            <div key={day.date} className="flex items-center gap-3 group">
-                                <span className="text-xs text-slate-500 w-24 shrink-0 font-mono">
+                        trendData.map((day) => (
+                            <div key={day.date} className="flex items-center gap-4 group">
+                                <span className="text-xs text-muted-foreground w-20 shrink-0 font-mono">
                                     {new Date(day.date).toLocaleDateString('en-US', {
                                         month: 'short',
                                         day: 'numeric',
                                     })}
                                 </span>
-                                <div className="flex-1 h-8 bg-white/5 rounded-lg overflow-hidden relative">
+                                <div className="flex-1 h-7 bg-muted rounded overflow-hidden relative">
                                     <div
-                                        className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg transition-all group-hover:brightness-110"
+                                        className="h-full bg-primary rounded transition-all group-hover:brightness-110"
                                         style={{
                                             width: `${(day.count / maxErrorsInDay) * 100}%`,
                                         }}
                                     />
                                     {day.count > 0 && (
-                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-white shadow-black/50 drop-shadow-md">
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-mono font-semibold text-foreground">
                                             {day.count}
                                         </span>
                                     )}
@@ -159,7 +176,7 @@ export const AnalyticsDashboard = () => {
                             </div>
                         ))
                     ) : (
-                        <p className="text-sm text-slate-500 text-center py-8">
+                        <p className="text-sm text-muted-foreground text-center py-8">
                             No data available
                         </p>
                     )}
@@ -169,37 +186,37 @@ export const AnalyticsDashboard = () => {
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Errors by Severity */}
-                <div className="glass-card p-6 rounded-xl">
-                    <h3 className="text-xl font-bold text-white mb-4">Errors by Severity</h3>
-                    <div className="space-y-3">
+                <div className="glass-card p-6 rounded-lg border">
+                    <h3 className="text-lg font-bold text-foreground mb-6">Errors by Severity</h3>
+                    <div className="space-y-4">
                         {Object.entries(analytics.errorsBySeverity).map(([severity, count]) => (
-                            <div key={severity} className="flex items-center gap-3 group">
+                            <div key={severity} className="flex items-center gap-4 group">
                                 <span
                                     className={cn(
-                                        'text-xs font-bold uppercase w-20 tracking-wider',
+                                        'text-xs font-bold uppercase w-20 tracking-wider font-mono',
                                         getSeverityColor(severity as any)
                                     )}
                                 >
                                     {severity}
                                 </span>
-                                <div className="flex-1 h-8 bg-white/5 rounded-lg overflow-hidden relative">
+                                <div className="flex-1 h-7 bg-muted rounded overflow-hidden relative">
                                     <div
                                         className={cn(
-                                            'h-full rounded-lg transition-all group-hover:brightness-110',
+                                            'h-full rounded transition-all group-hover:brightness-110',
                                             severity === 'critical'
-                                                ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                                ? 'bg-red-500'
                                                 : severity === 'high'
-                                                    ? 'bg-gradient-to-r from-orange-500 to-orange-600'
+                                                    ? 'bg-orange-500'
                                                     : severity === 'medium'
-                                                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-                                                        : 'bg-gradient-to-r from-blue-500 to-blue-600'
+                                                        ? 'bg-yellow-500'
+                                                        : 'bg-blue-500'
                                         )}
                                         style={{
                                             width: `${(count / analytics.totalErrors) * 100}%`,
                                         }}
                                     />
                                     {count > 0 && (
-                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-white drop-shadow-md">
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-mono font-semibold text-foreground">
                                             {count}
                                         </span>
                                     )}
@@ -210,18 +227,18 @@ export const AnalyticsDashboard = () => {
                 </div>
 
                 {/* Top Error Types */}
-                <div className="glass-card p-6 rounded-xl">
-                    <h3 className="text-xl font-bold text-white mb-4">Top Error Types</h3>
-                    <div className="space-y-3">
+                <div className="glass-card p-6 rounded-lg border">
+                    <h3 className="text-lg font-bold text-foreground mb-6">Top Error Types</h3>
+                    <div className="space-y-2">
                         {analytics.errorsByType.slice(0, 5).map((item, index) => (
-                            <div key={item.type} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="text-sm font-bold text-blue-400 w-6">
+                            <div key={item.type} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                                <span className="text-xs font-mono font-bold text-primary w-8">
                                     #{index + 1}
                                 </span>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-slate-200 truncate">{item.type}</p>
+                                    <p className="text-sm text-foreground truncate font-medium">{item.type}</p>
                                 </div>
-                                <span className="text-sm font-semibold text-slate-500">
+                                <span className="text-sm font-mono font-semibold text-muted-foreground">
                                     {item.count}
                                 </span>
                             </div>
@@ -230,33 +247,10 @@ export const AnalyticsDashboard = () => {
                 </div>
             </div>
 
-            {/* Top Error Producers */}
-            {analytics.topErrorProducers.length > 0 && (
-                <div className="glass-card p-6 rounded-xl">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                        <FileCode className="w-5 h-5 text-purple-400" />
-                        Top Error Producers
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {analytics.topErrorProducers.map((item, index) => (
-                            <div
-                                key={item.file}
-                                className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
-                            >
-                                <div className="flex items-start justify-between mb-2">
-                                    <span className="text-xs font-semibold text-purple-400">
-                                        #{index + 1}
-                                    </span>
-                                    <span className="text-lg font-bold text-white">{item.count}</span>
-                                </div>
-                                <p className="text-sm text-slate-400 font-mono truncate" title={item.file}>
-                                    {item.file.split('/').pop()}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {/* Visual Error Map */}
+            <div className="glass-card p-6 rounded-lg border">
+                <VisualErrorMap />
+            </div>
         </div>
     );
 };

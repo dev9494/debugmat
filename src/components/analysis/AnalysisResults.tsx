@@ -3,6 +3,7 @@ import { useErrorStore } from '../../stores/errorStore';
 import { SolutionCard } from './SolutionCard';
 import { CopyErrorButton } from '../features/CopyErrorButton';
 import { SeverityBadge } from '../features/SeverityBadge';
+import { DocGeneratorPanel } from '../features/DocGeneratorPanel';
 import { cn } from '../../lib/utils';
 
 export const AnalysisResults = () => {
@@ -32,7 +33,7 @@ export const AnalysisResults = () => {
                     <div className={cn(
                         "p-2 rounded-lg backdrop-blur-sm border",
                         currentAnalysis.severity === 'critical' ? "bg-red-500/10 text-red-400 border-red-500/20" :
-                            currentAnalysis.severity === 'warning' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                            currentAnalysis.severity === 'high' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                                 "bg-blue-500/10 text-blue-400 border-blue-500/20"
                     )}>
                         <AlertTriangle className="w-6 h-6" />
@@ -120,6 +121,12 @@ export const AnalysisResults = () => {
                     ))}
                 </div>
             </div>
+
+            {/* Documentation Generator */}
+            <DocGeneratorPanel
+                errorAnalysis={currentAnalysis}
+                errorMessage={currentError || "Unknown Error"}
+            />
         </div>
     );
 };

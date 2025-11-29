@@ -1,12 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+interface UserProfile {
+    username: string;
+    email?: string;
+    avatar?: string;
+}
+
 interface UserState {
+    isAuthenticated: boolean;
+    user: UserProfile | null;
+    token: string | null;
     tier: 'free' | 'pro' | 'team';
     usageCount: number;
     usageLimit: number;
     timesSaved: number; // in minutes
     bugsPrevented: number;
+
+    login: (token: string, user: UserProfile) => void;
+    logout: () => void;
     incrementUsage: () => void;
     resetUsage: () => void;
     upgradeTier: (tier: 'pro' | 'team') => void;
@@ -17,11 +29,18 @@ interface UserState {
 export const useUserStore = create<UserState>()(
     persist(
         (set) => ({
+            isAuthenticated: false,
+            user: null,
+            token: null,
             tier: 'free',
             usageCount: 0,
             usageLimit: 10,
             timesSaved: 0,
             bugsPrevented: 0,
+
+            login: (token, user) => set({ isAuthenticated: true, token, user }),
+            logout: () => set({ isAuthenticated: false, token: null, user: null }),
+
             incrementUsage: () => set((state) => ({ usageCount: state.usageCount + 1 })),
             resetUsage: () => set({ usageCount: 0 }),
             upgradeTier: (tier) => set({ tier, usageLimit: Infinity }),
