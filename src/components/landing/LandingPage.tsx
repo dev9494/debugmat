@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
     Zap, Shield, Code2, Terminal, Cpu, Globe,
     CheckCircle, XCircle, ArrowRight, Play,
     MessageSquare, Layers, BarChart3, GitPullRequest,
     Trophy, ChevronRight, Star, Check, Sparkles,
-    Bug, Search, Lock, LogIn
+    Bug, Search, Lock, LogIn, Menu, X
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DemoVideoModal } from './DemoVideoModal';
@@ -50,6 +50,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
     const [showDemo, setShowDemo] = useState(false);
     const { currentUser, signInWithGoogle } = useAuth();
     const [isSigningIn, setIsSigningIn] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleSignIn = async () => {
         setIsSigningIn(true);
@@ -139,16 +140,20 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                             DebugMate
                         </span>
                     </div>
+
+                    {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-10 text-base font-medium text-slate-300">
                         <a href="#features" className="hover:text-white hover:scale-105 transition-all">Features</a>
                         <a href="#how-it-works" className="hover:text-white hover:scale-105 transition-all">How it Works</a>
                         <a href="#pricing" className="hover:text-white hover:scale-105 transition-all">Pricing</a>
                     </div>
+
                     <div className="flex items-center gap-4">
+                        {/* Desktop Sign In Button */}
                         <button
                             onClick={handleSignIn}
                             disabled={isSigningIn}
-                            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 flex items-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="hidden md:flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSigningIn ? (
                                 <>
@@ -158,12 +163,82 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                             ) : (
                                 <>
                                     <LogIn className="w-5 h-5" />
-                                    Sign In with Google
+                                    Sign In
                                 </>
+                            )}
+                        </button>
+
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {isMobileMenuOpen ? (
+                                <X className="w-6 h-6" />
+                            ) : (
+                                <Menu className="w-6 h-6" />
                             )}
                         </button>
                     </div>
                 </div>
+
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="md:hidden border-t border-white/10 bg-[#0B1121]/95 backdrop-blur-xl"
+                        >
+                            <div className="px-6 py-6 space-y-4">
+                                <a
+                                    href="#features"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
+                                >
+                                    Features
+                                </a>
+                                <a
+                                    href="#how-it-works"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
+                                >
+                                    How it Works
+                                </a>
+                                <a
+                                    href="#pricing"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-colors text-lg font-medium"
+                                >
+                                    Pricing
+                                </a>
+                                <button
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        handleSignIn();
+                                    }}
+                                    disabled={isSigningIn}
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSigningIn ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Signing In...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <LogIn className="w-5 h-5" />
+                                            Sign In
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </nav>
 
             {/* Hero Section */}

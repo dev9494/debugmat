@@ -28,7 +28,7 @@ export const WarRoomPanel = ({ errorId }: WarRoomPanelProps) => {
     if (!errorId) return null;
 
     return (
-        <div className="flex flex-col h-[600px] bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+        <div className="flex flex-col h-full bg-card border border-border rounded-xl overflow-hidden shadow-sm">
             {/* Header */}
             <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
                 <div className="flex items-center gap-2">

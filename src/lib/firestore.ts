@@ -6,7 +6,8 @@ import {
     deleteDoc,
     updateDoc,
     serverTimestamp,
-    getDoc
+    getDoc,
+    increment
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { ErrorHistoryItem, ErrorAnalysis } from '../stores/errorStore';
@@ -50,6 +51,9 @@ export const createUserProfile = async (user: any) => {
                 settings: {
                     theme: 'system',
                     notifications: true
+                },
+                usage: {
+                    analysisCount: 0
                 }
             });
         }
@@ -68,5 +72,17 @@ export const updateUserStats = async (userId: string, stats: any) => {
         });
     } catch (err) {
         console.error("Error updating stats:", err);
+    }
+};
+
+export const incrementUsageCount = async (userId: string) => {
+    try {
+        const userRef = doc(db, 'users', userId);
+        await updateDoc(userRef, {
+            'usage.analysisCount': increment(1),
+            updatedAt: serverTimestamp()
+        });
+    } catch (err) {
+        console.error("Error incrementing usage:", err);
     }
 };

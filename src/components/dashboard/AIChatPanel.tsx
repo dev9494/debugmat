@@ -167,9 +167,9 @@ Provide a clear, concise answer.`;
             </div>
 
             {/* Chat Messages Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 min-h-0">
                 {chatMessages.length === 0 ? (
-                    <div className="flex flex-col h-full justify-center space-y-4 p-4">
+                    <div className="flex flex-col h-full justify-center space-y-4 p-2">
                         {/* Example message bubble */}
                         <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 text-white text-sm leading-relaxed shadow-xl">
                             <p className="font-bold mb-2 text-base">Explain the Database Connection Error</p>
@@ -179,12 +179,12 @@ Provide a clear, concise answer.`;
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                             {quickQuestions.map((question, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setInput(question)}
-                                    className="w-full text-left text-sm px-4 py-3 rounded-xl bg-muted hover:bg-muted/70 text-foreground transition-colors border border-border shadow-lg font-medium"
+                                    className="w-full text-left text-xs px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/70 text-foreground transition-colors border border-border shadow-sm font-medium"
                                 >
                                     {question}
                                 </button>
@@ -192,27 +192,27 @@ Provide a clear, concise answer.`;
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-3 pb-2">
                         {chatMessages.map((message, index) => (
                             <div
                                 key={index}
                                 className={cn(
-                                    "flex gap-3 p-4 rounded-xl",
+                                    "flex gap-3 p-3 rounded-xl",
                                     message.role === 'user'
-                                        ? "bg-blue-600/20 border border-blue-500/30"
-                                        : "bg-purple-600/20 border border-purple-500/30"
+                                        ? "bg-blue-600/10 border border-blue-500/20"
+                                        : "bg-purple-600/10 border border-purple-500/20"
                                 )}
                             >
                                 <div className={cn(
-                                    "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md",
+                                    "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5",
                                     message.role === 'user'
                                         ? "bg-blue-500 text-white"
                                         : "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
                                 )}>
                                     {message.role === 'user' ? (
-                                        <User className="w-4 h-4" />
+                                        <User className="w-3 h-3" />
                                     ) : (
-                                        <Bot className="w-4 h-4" />
+                                        <Bot className="w-3 h-3" />
                                     )}
                                 </div>
                                 <div className="flex-1 text-sm text-foreground leading-relaxed">
@@ -221,9 +221,9 @@ Provide a clear, concise answer.`;
                             </div>
                         ))}
                         {isLoadingChat && (
-                            <div className="flex gap-3 p-4 rounded-xl bg-purple-600/20 border border-purple-500/30">
-                                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                            <div className="flex gap-3 p-3 rounded-xl bg-purple-600/10 border border-purple-500/20">
+                                <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm mt-0.5">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
                                 </div>
                                 <div className="flex-1 text-sm text-muted-foreground">
                                     Thinking...
@@ -236,7 +236,7 @@ Provide a clear, concise answer.`;
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t border-border bg-muted/30 backdrop-blur-sm">
+            <div className="p-3 border-t border-border bg-muted/30 backdrop-blur-sm flex-shrink-0">
                 <div className="relative">
                     <input
                         type="text"
@@ -245,17 +245,17 @@ Provide a clear, concise answer.`;
                         onKeyPress={handleKeyPress}
                         placeholder="Type your message..."
                         disabled={isLoadingChat}
-                        className="w-full bg-card border border-border rounded-xl pl-4 pr-12 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-card border border-border rounded-lg pl-3 pr-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <button
                         onClick={handleSendMessage}
                         disabled={!input.trim() || isLoadingChat}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
                         {isLoadingChat ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                            <Send className="w-5 h-5" />
+                            <Send className="w-4 h-4" />
                         )}
                     </button>
                 </div>
