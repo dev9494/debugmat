@@ -5,10 +5,13 @@ import { useErrorStore } from '../../stores/errorStore';
 import { analyzeError } from '../../lib/gemini';
 import { useUserStore } from '../../stores/userStore';
 import { useSubscriptionStore } from '../../stores/subscriptionStore';
+import { incrementUsageCount } from '../../lib/firestore';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const ProfessionalCodeEditor = () => {
     const { currentError, setCurrentError, isAnalyzing, setIsAnalyzing, setCurrentAnalysis, addToHistory } = useErrorStore();
     const { incrementUsage } = useUserStore();
+    const { currentUser } = useAuth();
 
     const placeholderCode = `Paste your error message here...`;
 
@@ -53,6 +56,11 @@ export const ProfessionalCodeEditor = () => {
             clearTimeout(timeoutId);
             setCurrentAnalysis(analysis);
             incrementUsage();
+
+            // Track usage in Firestore if user is logged in
+            if (currentUser) {
+                await incrementUsageCount(currentUser.uid);
+            }
 
             addToHistory({
                 id: crypto.randomUUID(),
