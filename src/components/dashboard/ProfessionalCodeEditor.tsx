@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils';
 import { useErrorStore } from '../../stores/errorStore';
 import { analyzeError } from '../../lib/gemini';
 import { useUserStore } from '../../stores/userStore';
+import { useSubscriptionStore } from '../../stores/subscriptionStore';
 
 export const ProfessionalCodeEditor = () => {
     const { currentError, setCurrentError, isAnalyzing, setIsAnalyzing, setCurrentAnalysis, addToHistory } = useErrorStore();
@@ -11,8 +12,13 @@ export const ProfessionalCodeEditor = () => {
 
     const placeholderCode = `Paste your error message here...`;
 
+    const { checkLimit } = useSubscriptionStore();
+
     const handleAnalyze = async () => {
         if (!currentError.trim()) return;
+
+        // Check subscription limits
+        if (!checkLimit()) return;
 
         console.log('🚀 Starting analysis...');
         setIsAnalyzing(true);

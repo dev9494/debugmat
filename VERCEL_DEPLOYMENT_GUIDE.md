@@ -42,13 +42,20 @@
 
 **Variable 1:**
 - **Name**: `VITE_GEMINI_API_KEY`
-- **Value**: `AIzaSyDlcBOiVYBMjKOiZjNlBqPBrAGGPQdWDlU`
-- **Environment**: Select all (Production, Preview, Development)
-
-**Variable 2 (Optional):**
-- **Name**: `VITE_GITHUB_TOKEN`
-- **Value**: Your GitHub token (if you have one)
+- **Value**: Your Gemini API Key
 - **Environment**: Select all
+
+**Variable 2:**
+- **Name**: `VITE_STRIPE_PUBLISHABLE_KEY`
+- **Value**: Your Stripe Publishable Key (pk_test_...)
+- **Environment**: Select all
+
+**Variable 3 (Firebase):**
+- **Name**: `VITE_FIREBASE_API_KEY`
+- **Value**: Your Firebase API Key
+- **Environment**: Select all
+
+*(Repeat for all other Firebase variables found in .env.example)*
 
 ---
 

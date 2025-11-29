@@ -9,12 +9,15 @@ import { MessageSquare, Sparkles, AlertTriangle, Lightbulb, X, ArrowDown, Users 
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { PricingModal } from '../subscription/PricingModal';
+
 export const ProfessionalDashboard = () => {
     const { currentAnalysis, setCurrentAnalysis, currentError } = useErrorStore();
     const [rightSidebarTab, setRightSidebarTab] = useState<'chat' | 'war-room'>('chat');
 
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-background">
+            <PricingModal />
             {/* Top Stats Cards - Compact */}
             <div className="flex-shrink-0 px-6 pt-4 pb-2">
                 <ProfessionalStatsCards />
