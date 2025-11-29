@@ -475,14 +475,14 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                                 <span className="text-4xl font-bold text-white">$0</span>
                                 <span className="text-slate-500">/month</span>
                             </div>
-                            <p className="text-slate-400 mb-8">Perfect for hobby projects and experiments.</p>
+                            <p className="text-slate-400 mb-8">Perfect for trying out DebugMate.</p>
                             <ul className="space-y-4 mb-8">
                                 {[
-                                    "5,000 events/month",
-                                    "1 team member",
-                                    "7-day data retention",
-                                    "Basic AI analysis",
-                                    "Community support"
+                                    "5 AI analyses/month",
+                                    "Basic error explanations",
+                                    "Community support",
+                                    "7-day history",
+                                    "Core features"
                                 ].map((feature, i) => (
                                     <li key={i} className="flex items-center gap-3 text-slate-300">
                                         <Check className="w-5 h-5 text-blue-500" />
@@ -500,20 +500,20 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-blue-500 rounded-full text-xs font-bold text-white uppercase tracking-wider">
                                 Most Popular
                             </div>
-                            <h3 className="text-xl font-bold text-blue-400 mb-2">Pro</h3>
+                            <h3 className="text-xl font-bold text-blue-400 mb-2">Pro Developer</h3>
                             <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-5xl font-bold text-white">$29</span>
+                                <span className="text-5xl font-bold text-white">$19</span>
                                 <span className="text-slate-400">/month</span>
                             </div>
-                            <p className="text-slate-300 mb-8">For serious developers and small teams.</p>
+                            <p className="text-slate-300 mb-8">For serious developers shipping quality code.</p>
                             <ul className="space-y-4 mb-8">
                                 {[
-                                    "100,000 events/month",
-                                    "5 team members",
-                                    "30-day data retention",
-                                    "Advanced AI Auto-fix",
-                                    "Slack & Discord integration",
-                                    "Priority support"
+                                    "Unlimited AI analyses",
+                                    "Advanced solution generation",
+                                    "Unlimited history retention",
+                                    "Priority support",
+                                    "All premium features",
+                                    "Early access to new features"
                                 ].map((feature, i) => (
                                     <li key={i} className="flex items-center gap-3 text-white">
                                         <div className="p-1 rounded-full bg-blue-500/20">
