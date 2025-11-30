@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from './layout/Layout';
-import { ProfessionalDashboard } from './dashboard/ProfessionalDashboard';
+import { EnhancedDashboard } from './dashboard/EnhancedDashboard';
 import { ErrorClustersView } from './features/ErrorClustersView';
 import { AnalyticsDashboard } from './features/AnalyticsDashboard';
 import { AutoFixPanel } from './features/AutoFixPanel';
@@ -198,7 +198,7 @@ export function MainApp() {
                     activeView === 'dashboard' ? "max-w-full px-8" : "max-w-[1400px] px-6"
                 )}>
                     {activeView === 'dashboard' ? (
-                        <ProfessionalDashboard />
+                        <EnhancedDashboard />
                     ) : activeView === 'clusters' ? (
                         <ErrorClustersView />
                     ) : activeView === 'analytics' ? (
