@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bug, Clock, TrendingUp, Zap } from 'lucide-react';
+import { Bug, Flame, TrendingUp, Zap } from 'lucide-react';
 import { StatCard } from './StatCard';
 import { ErrorTrendsChart } from './ErrorTrendsChart';
 import { HotErrorsFeed } from './HotErrorsFeed';
@@ -17,7 +17,6 @@ import { useGamificationStore } from '../../stores/gamificationStore';
 export const EnhancedDashboard = () => {
     const { currentAnalysis, currentError, errorHistory } = useErrorStore();
     const { stats } = useGamificationStore();
-    const [showCodeEditor, setShowCodeEditor] = useState(false);
 
     // Calculate real stats from actual data
     const todayErrors = errorHistory.filter(e => {
@@ -26,7 +25,6 @@ export const EnhancedDashboard = () => {
         return errorDate.toDateString() === today.toDateString();
     }).length;
 
-    const avgFixTime = stats.averageFixTime || 0;
     const resolutionRate = errorHistory.length > 0
         ? Math.round((errorHistory.filter(e => e.status === 'resolved').length / errorHistory.length) * 100)
         : 0;
@@ -35,7 +33,7 @@ export const EnhancedDashboard = () => {
         <div className="flex flex-col h-screen overflow-hidden bg-background">
             {/* Quick Actions Toolbar */}
             <div className="flex-shrink-0 px-6 pt-6 pb-4">
-                <QuickActionsToolbar onScanCode={() => setShowCodeEditor(true)} />
+                <QuickActionsToolbar />
             </div>
 
             {/* Main Content - 3 Column Layout */}
@@ -62,11 +60,11 @@ export const EnhancedDashboard = () => {
                             color="blue"
                         />
                         <StatCard
-                            title="Avg Fix Time"
-                            value={avgFixTime > 0 ? `${avgFixTime.toFixed(1)} min` : 'N/A'}
-                            trend={-30}
-                            icon={<Clock className="w-6 h-6 text-white" />}
-                            color="green"
+                            title="Active Streak"
+                            value={`${stats.streak} days`}
+                            trend={10}
+                            icon={<Flame className="w-6 h-6 text-white" />}
+                            color="orange"
                         />
                         <StatCard
                             title="Resolution Rate"
@@ -76,56 +74,51 @@ export const EnhancedDashboard = () => {
                             color="purple"
                         />
                         <StatCard
-                            title="Total Analyzed"
-                            value={stats.errorsFixed || 0}
+                            title="Total Fixed"
+                            value={stats.totalErrorsFixed || 0}
                             trend={3}
                             icon={<Zap className="w-6 h-6 text-white" />}
-                            color="orange"
+                            color="green"
                         />
                     </div>
 
-                    {/* Error Trends Chart */}
-                    <ErrorTrendsChart />
+                    {/* ERROR CONSOLE ANALYZER - MAIN FEATURE - ALWAYS VISIBLE */}
+                    <div
+                        data-error-console
+                        className="bg-card border-2 border-primary/50 rounded-xl overflow-hidden shadow-lg shadow-primary/20"
+                    >
+                        <div className="px-6 py-4 bg-gradient-to-r from-primary/20 to-primary/10 border-b border-border">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                                        <Bug className="w-6 h-6 text-primary" />
+                                        Error Console Analyzer
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Paste your error below for instant AI-powered analysis
+                                    </p>
+                                </div>
+                                {currentAnalysis && (
+                                    <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full">
+                                        <span className="text-xs font-semibold text-green-400">Analyzed</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <ProfessionalCodeEditor />
+                        </div>
+                    </div>
 
-                    {/* Code Editor / Analysis Results */}
-                    {currentAnalysis && currentError ? (
+                    {/* Analysis Results - Show when available */}
+                    {currentAnalysis && currentError && (
                         <div className="bg-card border border-border rounded-xl overflow-hidden">
                             <AnalysisResults />
                         </div>
-                    ) : showCodeEditor ? (
-                        <div className="bg-card border border-border rounded-xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-foreground">Code Editor</h3>
-                                <button
-                                    onClick={() => setShowCodeEditor(false)}
-                                    className="text-sm text-muted-foreground hover:text-foreground"
-                                >
-                                    Close
-                                </button>
-                            </div>
-                            <ProfessionalCodeEditor />
-                        </div>
-                    ) : (
-                        <div className="bg-card border border-border rounded-xl p-12 text-center">
-                            <div className="max-w-md mx-auto">
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <Bug className="w-8 h-8 text-primary" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-foreground mb-2">
-                                    Ready to Debug
-                                </h3>
-                                <p className="text-muted-foreground mb-6">
-                                    Paste your error in the code editor or use the AI chat to get started
-                                </p>
-                                <button
-                                    onClick={() => setShowCodeEditor(true)}
-                                    className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
-                                >
-                                    Open Code Editor
-                                </button>
-                            </div>
-                        </div>
                     )}
+
+                    {/* Error Trends Chart */}
+                    <ErrorTrendsChart />
 
                     {/* AI Insights */}
                     <AIInsightsPanel />
@@ -134,10 +127,12 @@ export const EnhancedDashboard = () => {
                 {/* Right Column - Sidebar (3 cols) */}
                 <div className="col-span-3 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
 
-                    {/* AI Chat Panel */}
-                    <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col" style={{ height: '500px' }}>
-                        <div className="px-4 py-3 border-b border-border bg-muted/30">
+                    {/* AI Chat Panel - ALWAYS VISIBLE */}
+                    <div className="bg-card border-2 border-primary/30 rounded-xl overflow-hidden flex flex-col shadow-lg" style={{ height: '500px' }}>
+                        <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             <h3 className="text-sm font-semibold text-foreground">AI Assistant</h3>
+                            <span className="ml-auto text-xs text-muted-foreground">Online</span>
                         </div>
                         <div className="flex-1 min-h-0">
                             <AIChatPanel />

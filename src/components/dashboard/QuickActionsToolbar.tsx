@@ -19,6 +19,21 @@ export const QuickActionsToolbar = ({ onScanCode }: QuickActionsToolbarProps) =>
     const { setCommandPaletteOpen } = useUIStore();
     const { errorHistory, currentAnalysis } = useErrorStore();
 
+    const handleScanCode = () => {
+        // Scroll to error console
+        const errorConsole = document.querySelector('[data-error-console]');
+        if (errorConsole) {
+            errorConsole.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus the textarea after scrolling
+            setTimeout(() => {
+                const textarea = errorConsole.querySelector('textarea');
+                if (textarea) {
+                    textarea.focus();
+                }
+            }, 500);
+        }
+    };
+
     const handleAutoFix = () => {
         if (currentAnalysis) {
             alert('Auto-fix feature will be applied to the current error');
@@ -65,7 +80,7 @@ export const QuickActionsToolbar = ({ onScanCode }: QuickActionsToolbarProps) =>
             icon: Search,
             shortcut: '⌘K',
             color: 'from-blue-500 to-blue-600',
-            onClick: () => onScanCode ? onScanCode() : setCommandPaletteOpen(true)
+            onClick: handleScanCode
         },
         {
             label: 'Auto-Fix',
