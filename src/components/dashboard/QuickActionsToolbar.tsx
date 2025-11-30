@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { Search, Wand2, FileText, Play, Download, Settings, Zap } from 'lucide-react';
+import { useUIStore } from '../../stores/uiStore';
+import { useErrorStore } from '../../stores/errorStore';
 
 interface QuickAction {
     label: string;
@@ -9,46 +11,93 @@ interface QuickAction {
     onClick: () => void;
 }
 
-export const QuickActionsToolbar = () => {
+interface QuickActionsToolbarProps {
+    onScanCode?: () => void;
+}
+
+export const QuickActionsToolbar = ({ onScanCode }: QuickActionsToolbarProps) => {
+    const { setCommandPaletteOpen } = useUIStore();
+    const { errorHistory, currentAnalysis } = useErrorStore();
+
+    const handleAutoFix = () => {
+        if (currentAnalysis) {
+            alert('Auto-fix feature will be applied to the current error');
+        } else {
+            alert('Please analyze an error first');
+        }
+    };
+
+    const handleGenerateReport = () => {
+        const report = {
+            totalErrors: errorHistory.length,
+            timestamp: new Date().toISOString(),
+            errors: errorHistory.slice(0, 10)
+        };
+        console.log('Generated Report:', report);
+        alert(`Report generated with ${errorHistory.length} errors. Check console for details.`);
+    };
+
+    const handleRunTests = () => {
+        alert('Test runner will be integrated in the next update');
+    };
+
+    const handleExport = () => {
+        const csvContent = errorHistory.map(e =>
+            `"${e.timestamp}","${e.analysis?.errorType || 'Unknown'}","${e.analysis?.severity || 'Unknown'}","${e.status}"`
+        ).join('\n');
+        const header = '"Timestamp","Type","Severity","Status"\n';
+        const blob = new Blob([header + csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `debugmate-errors-${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleSettings = () => {
+        alert('Settings panel will open here');
+    };
+
     const actions: QuickAction[] = [
         {
             label: 'Scan Code',
             icon: Search,
             shortcut: '⌘K',
             color: 'from-blue-500 to-blue-600',
-            onClick: () => console.log('Scan code')
+            onClick: () => onScanCode ? onScanCode() : setCommandPaletteOpen(true)
         },
         {
-            label: 'Auto-Fix All',
+            label: 'Auto-Fix',
             icon: Wand2,
             shortcut: '⌘F',
             color: 'from-purple-500 to-purple-600',
-            onClick: () => console.log('Auto-fix')
+            onClick: handleAutoFix
         },
         {
             label: 'Generate Report',
             icon: FileText,
             color: 'from-green-500 to-green-600',
-            onClick: () => console.log('Generate report')
+            onClick: handleGenerateReport
         },
         {
             label: 'Run Tests',
             icon: Play,
             shortcut: '⌘T',
             color: 'from-orange-500 to-orange-600',
-            onClick: () => console.log('Run tests')
+            onClick: handleRunTests
         },
         {
             label: 'Export CSV',
             icon: Download,
             color: 'from-cyan-500 to-cyan-600',
-            onClick: () => console.log('Export')
+            onClick: handleExport
         },
         {
             label: 'Settings',
             icon: Settings,
             color: 'from-gray-500 to-gray-600',
-            onClick: () => console.log('Settings')
+            onClick: handleSettings
         }
     ];
 
