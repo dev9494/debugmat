@@ -36,19 +36,11 @@ export const EnhancedDashboard = () => {
                 <QuickActionsToolbar />
             </div>
 
-            {/* Main Content - 3 Column Layout */}
-            <div className="flex-1 grid grid-cols-12 gap-6 px-6 pb-6 min-h-0 overflow-hidden">
+            {/* Main Content - 2 Column Layout (70% - 30%) */}
+            <div className="flex-1 grid grid-cols-10 gap-6 px-6 pb-6 min-h-0 overflow-hidden">
 
-                {/* Left Column - Recent Activity (2 cols) */}
-                <div className="col-span-2 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-                    <div className="bg-card border border-border rounded-xl p-4">
-                        <h3 className="text-sm font-semibold text-foreground mb-4">Recent Activity</h3>
-                        <RecentActivity />
-                    </div>
-                </div>
-
-                {/* Center Column - Main Content (7 cols) */}
-                <div className="col-span-7 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                {/* Left Column - Main Content (7 cols) */}
+                <div className="col-span-7 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
 
                     {/* Top Stats Row */}
                     <div className="grid grid-cols-4 gap-4">
@@ -56,35 +48,35 @@ export const EnhancedDashboard = () => {
                             title="Errors Today"
                             value={todayErrors}
                             trend={-15}
-                            icon={<Bug className="w-6 h-6 text-white" />}
+                            icon={<Bug className="w-5 h-5 text-white" />}
                             color="blue"
                         />
                         <StatCard
                             title="Active Streak"
                             value={`${stats.streak} days`}
                             trend={10}
-                            icon={<Flame className="w-6 h-6 text-white" />}
+                            icon={<Flame className="w-5 h-5 text-white" />}
                             color="orange"
                         />
                         <StatCard
                             title="Resolution Rate"
                             value={`${resolutionRate}%`}
                             trend={5}
-                            icon={<TrendingUp className="w-6 h-6 text-white" />}
+                            icon={<TrendingUp className="w-5 h-5 text-white" />}
                             color="purple"
                         />
                         <StatCard
                             title="Total Fixed"
                             value={stats.totalErrorsFixed || 0}
                             trend={3}
-                            icon={<Zap className="w-6 h-6 text-white" />}
+                            icon={<Zap className="w-5 h-5 text-white" />}
                             color="green"
                         />
                     </div>
 
                     {/* ERROR CONSOLE ANALYZER - MAIN FEATURE - ALWAYS VISIBLE */}
                     <div
-                        data-error-console
+                        id="error-console-analyzer"
                         className="bg-card border-2 border-primary/50 rounded-xl overflow-hidden shadow-lg shadow-primary/20"
                     >
                         <div className="px-6 py-4 bg-gradient-to-r from-primary/20 to-primary/10 border-b border-border">
@@ -125,10 +117,10 @@ export const EnhancedDashboard = () => {
                 </div>
 
                 {/* Right Column - Sidebar (3 cols) */}
-                <div className="col-span-3 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                <div className="col-span-3 flex flex-col gap-6 overflow-y-auto custom-scrollbar pl-2">
 
                     {/* AI Chat Panel - ALWAYS VISIBLE */}
-                    <div className="bg-card border-2 border-primary/30 rounded-xl overflow-hidden flex flex-col shadow-lg" style={{ height: '500px' }}>
+                    <div className="bg-card border-2 border-primary/30 rounded-xl overflow-hidden flex flex-col shadow-lg h-[500px]">
                         <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             <h3 className="text-sm font-semibold text-foreground">AI Assistant</h3>
@@ -136,6 +128,14 @@ export const EnhancedDashboard = () => {
                         </div>
                         <div className="flex-1 min-h-0">
                             <AIChatPanel />
+                        </div>
+                    </div>
+
+                    {/* Recent Activity */}
+                    <div className="bg-card border border-border rounded-xl p-4 max-h-[300px] overflow-hidden flex flex-col">
+                        <h3 className="text-sm font-semibold text-foreground mb-4">Recent Activity</h3>
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                            <RecentActivity />
                         </div>
                     </div>
 

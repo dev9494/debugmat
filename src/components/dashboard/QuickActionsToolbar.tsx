@@ -21,7 +21,7 @@ export const QuickActionsToolbar = ({ onScanCode }: QuickActionsToolbarProps) =>
 
     const handleScanCode = () => {
         // Scroll to error console
-        const errorConsole = document.querySelector('[data-error-console]');
+        const errorConsole = document.getElementById('error-console-analyzer');
         if (errorConsole) {
             errorConsole.scrollIntoView({ behavior: 'smooth', block: 'center' });
             // Focus the textarea after scrolling
@@ -31,6 +31,8 @@ export const QuickActionsToolbar = ({ onScanCode }: QuickActionsToolbarProps) =>
                     textarea.focus();
                 }
             }, 500);
+        } else {
+            console.error('Error console element not found');
         }
     };
 
